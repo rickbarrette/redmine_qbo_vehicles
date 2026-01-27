@@ -21,11 +21,6 @@ module Vehicles
         f = context[:form]
         issue = context[:issue]
 
-        # check project level vehicle ownership first
-        # if context[:project]
-        #   selected_vehicle = context[:project].vehicle.id unless context[:project].vehicle.nil?
-        # end
-
         # Check to see if the issue already belongs to a customer
         selected_vehicle = issue.vehicle.id unless issue.vehicle.nil?
 

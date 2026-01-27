@@ -12,7 +12,6 @@ class Vehicle < ActiveRecord::Base
   
   belongs_to :customer
   has_many :issues
-  has_many :projects
   validates_presence_of :customer
   validates :vin, uniqueness: true
   before_save :decode_vin

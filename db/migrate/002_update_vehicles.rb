@@ -14,7 +14,6 @@ class UpdateVehicles < ActiveRecord::Migration[5.1]
     reversible do |direction|
       direction.up {
         rename_column :issues, :vehicles_id, :vehicle_id
-        rename_column :projects, :vehicles_id, :vehicle_id
       }
     rescue
       logger.error "Failed to update to use vehicle_id"

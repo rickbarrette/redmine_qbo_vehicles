@@ -27,7 +27,6 @@ class CreateVehicles < ActiveRecord::Migration[5.1]
         
         add_reference :vehicles, :customers, index: true
         add_reference :issues, :vehicle, index: true
-        add_reference :projects, :vehicle, index: true
       }
     rescue
       logger.error "Failed to create vehicles & refrences"
