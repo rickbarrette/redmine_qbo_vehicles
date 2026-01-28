@@ -29,7 +29,7 @@ class CreateVehicles < ActiveRecord::Migration[5.1]
         add_reference :issues, :vehicle, index: true
       }
     rescue
-      logger.error "Failed to create vehicles & refrences"
+      Rails.logger.error "Failed to create vehicles & refrences"
     end
   end
 end

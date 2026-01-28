@@ -16,7 +16,7 @@ class UpdateVehicles < ActiveRecord::Migration[5.1]
         rename_column :issues, :vehicles_id, :vehicle_id
       }
     rescue
-      logger.error "Failed to update to use vehicle_id"
+      Rails.logger.error "Failed to update to use vehicle_id"
     end
   end
 end
