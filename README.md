@@ -21,7 +21,7 @@ Adds vehicles that are owned by customers that can be attached to issues.
    ```bash
    cd path/to/redmine/plugins
    git clone git@github.com:rickbarrette/redmine_qbo_vehicles.git
-   cd redmine_qbo
+   cd redmine_qbo_vehicles
    git checkout <tag>
    ```
 
@@ -45,7 +45,7 @@ Adds vehicles that are owned by customers that can be attached to issues.
 
 ## Usage
 
-Simply add vehicles to customers via Customer view
+Simply add vehicles to customers via Customer Profile 
 
 Once a customer is attached to the customer, they can be attached to an issue.
 
