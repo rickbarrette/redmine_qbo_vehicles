@@ -19,7 +19,6 @@ en:
   label_make: " Make"
   label_model: "Model"
   label_no_vehicles: "There are no vehicles containing the term(s)"
-  label_no_customers: "There are no customers containing the term(s)"
   label_search_vin: "Search Vehicles by VIN"
   label_edit_customer_vehicle: "Edit Customer Vehicle"
   label_cusomer_vehicles: "Customer Vehicles"
