@@ -27,7 +27,7 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   end
   
   # Add safe attributes for core models
-  Issue.safe_attributes 'vehicle_id'
+  Issue.safe_attributes :vehicle_id
 
   # Permissions for security
   permission :view_vehicles, vehicles: :new, public: false
