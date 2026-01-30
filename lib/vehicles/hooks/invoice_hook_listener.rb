@@ -19,7 +19,6 @@ module Vehicles
       def process_invoice_custom_fields(context={})
         Rails.logger.info "redmine_qbo_vehicles.process_invoice_custom_fields"
         issue = context[:issue]
-        invoice = context[:invoice]
 
         # update the invoive custom fields with infomation from the issue if available
         context[:invoice].custom_fields.each do |cf|
