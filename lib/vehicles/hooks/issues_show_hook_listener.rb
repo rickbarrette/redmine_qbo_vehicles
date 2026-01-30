@@ -13,28 +13,15 @@ module Vehicles
 
     class IssuesShowHookListener < Redmine::Hook::ViewListener
 
-      # View Issue
-      # Display the quickbooks contact in the issue
+      # Display vehicle information on the issue view page.
       def show_issue_view_right(context={})
-        issue = context[:issue]
-        
-        begin
-          v = issue.vehicle
-          vehicle = link_to v.to_s, vehicle_path( v.id )
-          vin = v.vin 
-          notes = v.notes
-        rescue
-          #do nothing
-        end
-        
-        split_vin = vin.scan(/.{1,9}/) if vin
 
         context[:controller].send(:render_to_string, {
           partial: 'issues/show_issue_view_right',
             locals: {
-              vehicle: vehicle, 
-              split_vin: split_vin,
-              notes: notes
+              vehicle: link_to(context[:issue].vehicle), 
+              split_vin: context[:issue].vehicle ? context[:issue].vehicle.vin.to_s.scan(/.{1,9}/) : nil,
+              notes: context[:issue].vehicle ? context[:issue].vehicle.notes : nil
             } 
           })
       end
