@@ -23,7 +23,7 @@ class VehiclesController < ApplicationController
   def index
     if params[:customer_id]
       begin
-        @vehicles = Customer.find_by_id(params[:customer_id]).vehicles.paginate(:page => params[:page])
+        @vehicles = Customer.find_by_id(params[:customer_id]).vehicles.paginate(page: params[:page])
       rescue ActiveRecord::RecordNotFound
         render_404
       end
@@ -31,7 +31,7 @@ class VehiclesController < ApplicationController
 
     # search for a vehicle by vin
     if params[:search]
-      @vehicles = Vehicle.search(params[:search]).paginate(:page => params[:page])
+      @vehicles = Vehicle.search(params[:search]).paginate(page: params[:page])
       if only_one_non_zero?(@vehicles)
         redirect_to @vehicles.first
       end

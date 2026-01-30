@@ -11,7 +11,7 @@
 # Nest Vehicles under customers
 resources :customers do
   resources :vehicles
-  get :autocomplete_customer_name, :on => :collection
+  get :autocomplete_customer_name, on: :collection
 end
 
 #allow for just vehicles too

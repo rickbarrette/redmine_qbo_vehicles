@@ -17,7 +17,7 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   version '2026.1.1'
   url 'https://github.com/rickbarrette/redmine_qbo_vehicles'
   author_url 'https://barrettefabrication.com'
-  requires_redmine :version_or_higher => '6.1.0'
+  requires_redmine version_or_higher: '6.1.0'
 
   # Ensure redmine_qbo is installed
   begin
@@ -30,10 +30,10 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   Issue.safe_attributes 'vehicle_id'
 
   # Permissions for security
-  permission :view_vehicles, :vehicles => :new, :public => false
+  permission :view_vehicles, vehicles: :new, public: false
 
   # Register top menu items
-  menu :top_menu, :vehicles, { :controller => :vehicles, :action => :index }, :caption => 'Vehicles', :if => Proc.new { User.current.logged? }
+  menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: 'Vehicles', if: Proc.new { User.current.logged? }
     
 end
 

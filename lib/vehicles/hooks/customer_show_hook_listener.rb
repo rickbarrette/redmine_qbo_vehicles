@@ -19,7 +19,7 @@ module Vehicles
 
         # Pass all prebuilt form components to our partial
         context[:controller].send(:render_to_string, { 
-          :partial => 'customers/show_hook', locals: { customer: context[:customer] } 
+          partial: 'customers/show_hook', locals: { customer: context[:customer] } 
         })
 
       end

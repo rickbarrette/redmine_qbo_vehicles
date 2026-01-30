@@ -36,11 +36,11 @@ module Vehicles
         end
 
         # Generate the drop down list of vehicles
-        vehicle = f.select :vehicle_id, vehicles, :selected => selected_vehicle, include_blank: true
+        vehicle = f.select :vehicle_id, vehicles, selected: selected_vehicle, include_blank: true
 
         # Pass all prebuilt form components to our partial
         context[:controller].send(:render_to_string, {
-          :partial => 'issues/form_hook_vehicles',
+          partial: 'issues/form_hook_vehicles',
             locals: {
               vehicle: vehicle
             } 

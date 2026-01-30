@@ -30,7 +30,7 @@ module Vehicles
         split_vin = vin.scan(/.{1,9}/) if vin
 
         context[:controller].send(:render_to_string, {
-          :partial => 'issues/show_issue_view_right',
+          partial: 'issues/show_issue_view_right',
             locals: {
               vehicle: vehicle, 
               split_vin: split_vin,
