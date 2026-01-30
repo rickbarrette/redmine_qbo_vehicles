@@ -23,7 +23,7 @@ module Vehicles
           locals: {
             vehicle: context[:form].select( :vehicle_id, 
               context[:issue].customer ? context[:issue].customer.vehicles.pluck(:name, :id) : [], 
-              selected: context[:issue].vehicle, 
+              selected: context[:issue].vehicle ? context[:issue].vehicle.id : nil, 
               include_blank: true )
           } 
         })
