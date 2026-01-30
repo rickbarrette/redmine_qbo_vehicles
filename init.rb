@@ -33,7 +33,7 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   permission :view_vehicles, vehicles: :new, public: false
 
   # Register top menu items
-  menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: 'Vehicles', if: Proc.new { User.current.logged? }
+  menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: :field_vehicles, if: Proc.new { User.current.logged? }
     
 end
 
