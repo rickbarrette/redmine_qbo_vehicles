@@ -15,19 +15,13 @@ module Vehicles
     class PdfHookListener < Redmine::Hook::ViewListener
 
       include IssuesHelper
-
-      # Edit Issue Form
-      # Here we build the required form components before passing them to a partial view formatting. 
+      
+      # Add vehicle information to the left column of the issue PDF
       def pdf_left(context={})
-        issue = context[:issue]
         output = []
-        v = issue.vehicle
-        vehicle = v ? v.to_s : nil
-        vin = v ? v.vin : nil
-        notes = v ? v.notes : nil
-        output << [l(:field_vehicles), vehicle]
-        output << [l(:field_vin), vin ? vin.gsub(/(.{9})/, '\1 ') : nil]
-        output << [l(:field_notes), notes]
+        output << [l(:field_vehicles), context[:issue].vehicle ? context[:issue].vehicle.to_s : nil]
+        output << [l(:field_vin), context[:issue].vehicle ? context[:issue].vehicle.vin.gsub(/(.{9})/, '\1 ') : nil]
+        output << [l(:field_notes), context[:issue].vehicle ? context[:issue].vehicle.notes : nil]
         return output
       end
         
