@@ -13,11 +13,11 @@ module Vehicles
 
     class CustomerShowHookListener < Redmine::Hook::ViewListener
 
-    include IssuesHelper
+      include IssuesHelper
 
+      # Display vehicle information on the customer show view (right side)
       def show_customer_view_right(context={})
 
-        # Pass all prebuilt form components to our partial
         context[:controller].send(:render_to_string, { 
           partial: 'customers/show_hook', locals: { customer: context[:customer] } 
         })
