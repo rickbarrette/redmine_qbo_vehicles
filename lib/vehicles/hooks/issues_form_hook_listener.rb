@@ -13,40 +13,23 @@ module Vehicles
 
     class IssuesFormHookListener < Redmine::Hook::ViewListener
 
-    include IssuesHelper
+      include IssuesHelper
 
-      # Edit Issue Form
-      # Here we build the required form components before passing them to a partial view formatting. 
       def view_issues_form_details_bottom(context={})
-        f = context[:form]
-        issue = context[:issue]
 
-        # Check to see if the issue already belongs to a customer
-        selected_vehicle = issue.vehicle.id unless issue.vehicle.nil?
-
-        # Load customer's vehicles
-        if issue.customer
-          if issue.customer.vehicles
-            vehicles = issue.customer.vehicles.pluck(:name, :id)
-          else
-            vehicles = [nil].compact
-          end
-        else
-          vehicles = [nil].compact
-        end
-
-        # Generate the drop down list of vehicles
-        vehicle = f.select :vehicle_id, vehicles, selected: selected_vehicle, include_blank: true
-
-        # Pass all prebuilt form components to our partial
+        # Load the customer's vehicles for selection in the issue form.
         context[:controller].send(:render_to_string, {
           partial: 'issues/form_hook_vehicles',
-            locals: {
-              vehicle: vehicle
-            } 
-          })
+          locals: {
+            vehicle: context[:form].select( :vehicle_id, 
+              context[:issue].customer ? context[:issue].customer.vehicles.pluck(:name, :id) : [], 
+              selected: context[:issue].vehicle, 
+              include_blank: true )
+          } 
+        })
+
       end
-      
+
     end
   end
 end
