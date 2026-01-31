@@ -74,12 +74,12 @@ class Vehicle < ActiveRecord::Base
 
   # reurns all invoices for this vehicle
   def invoices
-    self.issues.flat_map(&:invoices).uniq
+    self.issues.flat_map(&:invoices).uniq.compact
   end
 
   # returns all estimates for this vehicle
   def estimates
-    self.issues.flat_map(&:estimate).uniq
+    self.issues.flat_map(&:estimate).uniq.compact
   end
   
   private
