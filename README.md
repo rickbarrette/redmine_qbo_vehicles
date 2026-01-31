@@ -1,53 +1,55 @@
 # Redmine QuickBooks Online Vehicles
 
-A redmine plugin to compliment the Redmine QuickBooks Online Vehicles plug in.
+A Redmine plugin to complement the [Redmine QuickBooks Online](https://github.com/rickbarrette/redmine_qbo) plugin.
 
-The goal of this project is to allow add vehicle tracking for customer vehicles.
+The goal of this project is to enable vehicle tracking for customer vehicles within Redmine.
+
+## Requirements
+
+* **Redmine:** 6.1+
+* **Parent Plugin:** [Redmine QuickBooks Online](https://github.com/rickbarrette/redmine_qbo)
 
 ## Compatibility
 
-| Redmine QBO Plugin Version | Redmine Version |
-| :--- | :--- |
-| Version 2026.1.2+ | Redmine 6.1 |
+| Plugin Version | Redmine Version | Ruby Version |
+| :--- | :--- | :--- |
+| 2026.1.2+ | Redmine 6.1 | 3.2+ |
 
 ## Features
 
-Adds vehicles that are owned by customers that can be attached to issues.
+* **Asset Tracking:** Adds vehicles owned by customers to the system.
+* **Issue Association:** Allows these vehicles to be attached directly to Redmine issues for better service tracking.
 
 ## Installation
 
-1. **Clone the plugin:**
-   Clone this repo into your plugin folder and checkout a tagged version.
-   ```bash
-   cd path/to/redmine/plugins
-   git clone git@github.com:rickbarrette/redmine_qbo_vehicles.git
-   cd redmine_qbo_vehicles
-   git checkout <tag>
-   ```
-
-2.  **Install dependencies:** *Crucial for Redmine 6 / Rails 7 compatibility.*
-    
-    Bash
-    
+1.  **Clone the plugin:**
+    Navigate to your Redmine plugins directory and clone the repository.
+    ```bash
+    cd path/to/redmine/plugins
+    git clone git@github.com:rickbarrette/redmine_qbo_vehicles.git
+    cd redmine_qbo_vehicles
+    git checkout <tag> 
     ```
+    *(Note: Replace `<tag>` with the specific release version you wish to use, or omit the last line to use the main branch.)*
+
+2.  **Install dependencies:**
+    *Crucial for Redmine 6 / Rails 7 compatibility.*
+    ```bash
     bundle install
     ```
-    
+
 3.  **Migrate your database:**
-    
-    Bash
-    
-    ```
+    ```bash
     bundle exec rake redmine:plugins:migrate RAILS_ENV=production
     ```
-    
-4.  **Restart Redmine:** You must restart your Redmine server instance for the plugin and hooks to load.
+
+4.  **Restart Redmine:**
+    You must restart your Redmine server instance (e.g., Puma, Passenger, Unicorn) for the plugin and hooks to load correctly.
 
 ## Usage
 
-Simply add vehicles to customers via Customer Profile 
-
-Once a customer is attached to the customer, they can be attached to an issue.
+1.  **Add a Vehicle:** Navigate to a Customer Profile. You will see a new option to add vehicles to that customer.
+2.  **Link to Issue:** Once a vehicle is added to a customer, it can be selected and attached to an Issue relevant to that customer.
 
 ## License
 
