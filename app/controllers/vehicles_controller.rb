@@ -25,6 +25,7 @@ class VehiclesController < ApplicationController
       begin
         @vehicles = Customer.find_by_id(params[:customer_id]).vehicles.paginate(page: params[:page])
       rescue ActiveRecord::RecordNotFound
+        flash[:error] = t :alert_vehicle_not_found
         render_404
       end
     end
@@ -48,7 +49,7 @@ class VehiclesController < ApplicationController
   def create
     @vehicle = Vehicle.new(allowed_params)
     if @vehicle.save
-      flash[:notice] = "New Vehicle Created"
+      flash[:notice] = t :notice_vehicle_created
       redirect_to @vehicle
     else
       flash[:error] = @vehicle.errors.full_messages.to_sentence
@@ -64,6 +65,7 @@ class VehiclesController < ApplicationController
       @issues = @vehicle.issues.order(id: :desc)
       @closed_issues = (@issues - @issues.open)
     rescue 
+      flash[:error] = t :alert_vehicle_not_found
       render_404
     end
   end
@@ -74,6 +76,7 @@ class VehiclesController < ApplicationController
       @vehicle = Vehicle.find_by_id(params[:id])
       @customer = @vehicle.customer
     rescue 
+      flash[:error] = t :alert_vehicle_not_found
       render_404
     end
   end
@@ -84,7 +87,7 @@ class VehiclesController < ApplicationController
     begin
       @vehicle = Vehicle.find_by_id(params[:id])
       if @vehicle.update(allowed_params)
-        flash[:notice] = "Vehicle updated"
+        flash[:notice] = t :notice_vehicle_updated
         redirect_to @vehicle
       else
         redirect_to edit_vehicle_path
@@ -92,6 +95,7 @@ class VehiclesController < ApplicationController
       #show any errors anyways
       flash[:error] = @vehicle.errors.full_messages.to_sentence unless @vehicle.errors.empty?
     rescue 
+      flash[:error] = t :alert_vehicle_not_updated
       render_404
     end
   end
@@ -100,9 +104,10 @@ class VehiclesController < ApplicationController
   def destroy
     begin
       Vehicle.find_by_id(params[:id]).destroy
-      flash[:notice] = "Vehicle deleted successfully"
+      flash[:notice] = t :notice_vehicle_deleted
       redirect_to action: :index
     rescue 
+      flash[:error] = t :alert_vehicle_not_deleted
       render_404
     end
   end
