@@ -71,6 +71,16 @@ class Vehicle < ActiveRecord::Base
     end
     self.name = to_s
   end
+
+  # reurns all invoices for this vehicle
+  def invoices
+    self.issues.flat_map(&:invoices).uniq
+  end
+
+  # returns all estimates for this vehicle
+  def estimates
+    self.issues.flat_map(&:estimate).uniq
+  end
   
   private
   
