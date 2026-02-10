@@ -3,6 +3,7 @@
   <% vehicles.each do |vehicle| %>
     <div class="row">
       <div>
+        <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment" %>
         <b><%= link_to "##{vehicle.id}", vehicle_path(vehicle) %> </b>
       </div>
       
