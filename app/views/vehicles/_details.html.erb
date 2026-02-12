@@ -8,7 +8,7 @@
 
           <tr>
             <th><%= t(:field_customer)%></th>
-            <td><%= link_to vehicle.customer.name, customer_path(vehicle.customer) %></td>
+            <td><%= link_to(vehicle.customer.name, customer_path(vehicle.customer)) if vehicle.customer %></td>
           </tr>
         
           <tr>
