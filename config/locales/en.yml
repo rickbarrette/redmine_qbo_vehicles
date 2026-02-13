@@ -31,3 +31,6 @@ en:
   alert_vehicle_not_deleted: "Vehicle could not be deleted."
   alert_vehicle_not_created: "Vehicle could not be created."
   alert_vehicle_not_updated: "Vehicle could not be updated."
+  no_customer: "Customer no longer exists"
+  alert_no_customer: "Customer no longer exists, check for merged customers or deleted customers in Quick Books Online."
+  

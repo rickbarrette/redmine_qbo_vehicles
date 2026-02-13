@@ -64,6 +64,7 @@ class VehiclesController < ApplicationController
       @vin = @vehicle.vin.scan(/.{1,9}/) if @vehicle.vin
       @issues = @vehicle.issues.order(id: :desc)
       @closed_issues = (@issues - @issues.open)
+      flash[:error] = t :alert_no_customer if @vehicle.customer.nil?
     rescue 
       flash[:error] = t :alert_vehicle_not_found
       render_404
