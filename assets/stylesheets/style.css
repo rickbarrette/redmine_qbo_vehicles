@@ -1,0 +1,23 @@
+.container {
+  display: grid;
+  /* Column 1 for checkbox, Column 2 for text */
+  grid-template-columns: auto 1fr; 
+  /* Row 1 for 'Vehicle', Row 2 for 'VIN' */
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 10px; /* Adjust spacing between checkbox and text */
+}
+
+.checkbox {
+  /* This makes the checkbox take up both rows */
+  grid-row: span 2;
+}
+
+.label-main {
+  font-weight: bold;
+}
+
+.label-sub {
+  font-size: 0.85em;
+  color: #666;
+}

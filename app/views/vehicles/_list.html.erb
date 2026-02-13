@@ -2,27 +2,29 @@
 
   <% vehicles.each do |vehicle| %>
     <div class="row">
-      <div>
-        <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment" %>
-        <b><%= link_to "##{vehicle.id}", vehicle_path(vehicle) %> </b>
-      </div>
+
+      <div class="container">
+
+        <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment checkbox" %>
+        
+        <div class='label-main'>
+          <%= link_to vehicle.to_s, vehicle_path(vehicle) %>
+        </div>
+
+        <div class="label-sub">
+          <%= vehicle.vin.scan(/.{1,9}/)[0] if vehicle.vin %><b><%=vehicle.vin.scan(/.{1,9}/)[1] if vehicle.vin%></b>
+        </div>
       
-      <div>
-        <%= vehicle.to_s %>
-        <br/>
-        <%= vehicle.customer %>
-        <br/>
-        <%= vehicle.vin.scan(/.{1,9}/)[0] if vehicle.vin %><b><%=vehicle.vin.scan(/.{1,9}/)[1] if vehicle.vin%></b>
       </div>
+      <br/>
     </div>
-    <br/>
   <% end %>
 
   <div class="actions">
     <%= will_paginate vehicles %>
   </div>
 
-<p><%=t(:label_matching)%> <%=vehicles.count%> <%=t(:field_vehicles) %> </p>
+<%=t(:label_matching)%> <%=vehicles.count%> <%=t(:field_vehicles) %>
 
 <% else %>
   <p><%=t(:label_no_vehicles)%> <%= params[:search] %>.</p>
