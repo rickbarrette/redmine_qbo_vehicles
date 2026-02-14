@@ -18,7 +18,14 @@ async function handleCopy(event) {
 
     // 5. Reset after 2 seconds
     setTimeout(() => {
-      link.innerText = originalText;
+      // Check if the text is long enough to prevent errors
+      if (originalText.length >= 8) {
+        const firstPart = originalText.slice(0, -8);
+        const lastEight = originalText.slice(-8);
+        link.innerHTML = `${firstPart}<b>${lastEight}</b>`;
+      } else {
+        link.innerText = originalText;
+      }
       link.style.color = "";
     }, 2000);
 
