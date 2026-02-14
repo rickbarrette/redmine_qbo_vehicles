@@ -13,7 +13,7 @@ async function handleCopy(event) {
     // 4. Update the UI to show it worked
     const link = event.target;
     const originalText = link.innerText;
-    link.innerText = "Copied!";
+    link.innerHTML = "<b>Copied!</b>";
     link.style.color = "#4CAF50"; // Turn green
 
     // 5. Reset after 2 seconds
