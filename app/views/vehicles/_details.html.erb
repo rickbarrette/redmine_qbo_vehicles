@@ -18,7 +18,9 @@
           
           <tr>
             <th><%= t(:field_vin) %></th>
-            <td><%= @vin[0] if @vin %><b><%=@vin[1] if @vin%></b></td>
+            <td id="vin">
+               <a href="#" onclick="handleCopy(event)"><%= @vin[0] if @vin %><b><%=@vin[1] if @vin%></b></a>
+            </td>
           </tr>
           
           <th><%= t(:label_trim) %></th>

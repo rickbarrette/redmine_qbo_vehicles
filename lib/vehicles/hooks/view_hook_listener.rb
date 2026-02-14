@@ -14,7 +14,8 @@ module Vehicles
 
       def view_layouts_base_html_head(context = {})
         safe_join([
-          stylesheet_link_tag('style', plugin: :redmine_qbo_vehicles, media: :all)
+          stylesheet_link_tag('style', plugin: :redmine_qbo_vehicles, media: :all),
+          javascript_include_tag('copy', plugin: :redmine_qbo_vehicles)
         ])
       end
 
