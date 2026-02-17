@@ -5,14 +5,23 @@
 
       <div class="container">
 
-        <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment checkbox" %>
-        
+        <% if show_checkbox %>
+          <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment checkbox" %>
+        <% else %>
+          <div class='checkbox'>
+          </div>
+        <% end %>
+
         <div class='label-main'>
           <%= link_to vehicle.to_s, vehicle_path(vehicle) %>
         </div>
 
         <div class="label-sub">
           <a href="#" onclick="handleCopy(event)"><%= vehicle.vin.scan(/.{1,9}/)[0] if vehicle.vin %><b><%=vehicle.vin.scan(/.{1,9}/)[1] if vehicle.vin%></b></a>
+          <% if show_customer %>
+            <br/>
+            <%= vehicle.customer %>
+          <% end %>
         </div>
       
       </div>
