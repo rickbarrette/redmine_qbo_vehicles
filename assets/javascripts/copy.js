@@ -1,17 +1,25 @@
 async function handleCopy(event) {
   console.log("Copy link clicked");
+
   // 1. Prevent the link from actually navigating
   event.preventDefault();
-
-  // 2. Grab the text from our span
-  const text = document.getElementById('vin').innerText;
+  
+  let text;
+  let link;
+  // 2. Grab the text from our clicked link
+  if(event.target.tagName.toLowerCase() === 'b'){
+    text = event.target.parentElement.innerText;
+    link = event.target.parentElement;
+  } else {
+    text = event.target.innerText;
+    link = event.target;
+  }
 
   try {
     // 3. Write to clipboard
     await navigator.clipboard.writeText(text);
     
     // 4. Update the UI to show it worked
-    const link = event.target;
     const originalText = link.innerText;
     link.innerHTML = "<b>Copied!</b>";
     link.style.color = "#4CAF50"; // Turn green
