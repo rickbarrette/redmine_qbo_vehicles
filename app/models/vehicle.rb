@@ -50,9 +50,10 @@ class Vehicle < ActiveRecord::Base
     write_attribute(:vin, val)
   end
   
-  # search for a vin
-  def self.search(search)
-    where("vin LIKE ?", "%#{search}%")
+  # search for a vehicle by vin, make, model, or year
+  def self.search(query)
+    q = sanitize_sql_like(query)
+    where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
   end
 	
   # decodes a vin and updates self
