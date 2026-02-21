@@ -6,7 +6,7 @@
 <div class="vehicle_vin attribute">
     <div class="label"><%=t(:field_vin)%>:</div>
     <div class="value" id="vin">
-        <a href="#" id="copyLink" onclick="handleCopy(event)"><%=split_vin[0] if split_vin%><b><%=split_vin[1] if split_vin%></b></a>
+        <div id="copyLink" onclick="handleCopy(event)"><%=split_vin[0] if split_vin%><b><%=split_vin[1] if split_vin%></b></div>
     </div>
 
 </div>

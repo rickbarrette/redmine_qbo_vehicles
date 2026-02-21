@@ -1,12 +1,9 @@
 async function handleCopy(event) {
   console.log("Copy link clicked");
-
-  // 1. Prevent the link from actually navigating
-  event.preventDefault();
   
   let text;
   let link;
-  // 2. Grab the text from our clicked link
+  // Grab the text from our clicked link
   if(event.target.tagName.toLowerCase() === 'b'){
     text = event.target.parentElement.innerText;
     link = event.target.parentElement;
@@ -16,15 +13,15 @@ async function handleCopy(event) {
   }
 
   try {
-    // 3. Write to clipboard
+    // Write to clipboard
     await navigator.clipboard.writeText(text);
     
-    // 4. Update the UI to show it worked
+    // Update the UI to show it worked
     const originalText = link.innerText;
     link.innerHTML = "<b>Copied!</b>";
     link.style.color = "#4CAF50"; // Turn green
 
-    // 5. Reset after 2 seconds
+    // Reset after 2 seconds
     setTimeout(() => {
       // Check if the text is long enough to prevent errors
       if (originalText.length >= 8) {
