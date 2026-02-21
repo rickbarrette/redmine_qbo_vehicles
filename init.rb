@@ -35,6 +35,10 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   # Register top menu items
   menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: :field_vehicles, if: Proc.new { User.current.logged? }
     
+  Redmine::Search.map do |search|
+    search.register :vehicles
+  end
+
 end
 
 # Dynamically load all Hooks & Patches recursively
