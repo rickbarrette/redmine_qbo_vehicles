@@ -15,7 +15,71 @@ class Vehicle < ActiveRecord::Base
   validates_presence_of :customer
   validates :vin, uniqueness: true
   before_save :decode_vin
+
+  def self.searchable_columns
+    ['vin', 'make', 'model', 'year']
+  end
+
+  def self.searchable_options
+    {
+      columns: searchable_columns,
+      scope: self.all
+    }
+  end
+
+  def self.search_result_ranks_and_ids(tokens, user, project = nil, options = {})
+    return {} if tokens.blank?
+
+    scope = self.all
+
+    tokens.each do |token|
+      q = "%#{sanitize_sql_like(token)}%"
+      scope = where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
+    end
+
+    ids = scope.distinct.limit(options[:limit] || 100).pluck(:id)
+
+    # Assign simple uniform ranking
+    ids.each_with_object({}) { |id, h| h[id] = id }
+  end
+
+  def self.search_results_from_ids(ids, *args)
+    return [] if ids.blank?
+
+    Rails.logger.warn "IDS: #{ids.inspect}"
+
+    ids = ids.map(&:to_i)
+    records = where(id: ids).index_by(&:id)
+    ids.map { |id| records[id] }.compact
+  end
   
+  # ---- Redmine Search Event Interface ----
+  def event_type
+    'vehicle'
+  end
+
+  def event_title
+    to_s
+  end
+
+  def event_description
+    "#{vin} #{year} #{make} #{model}"
+  end
+
+  def event_url
+    Rails.application.routes.url_helpers.vehicle_path(self)
+  end
+
+  def event_datetime
+    updated_at || created_at
+  end
+
+  def project
+    # Vehicles are not project scoped in your schema.
+    # Return nil so global search works cleanly.
+    nil
+  end
+
   # returns a human readable string
   def to_s
     if year.nil? or make.nil? or model.nil?
