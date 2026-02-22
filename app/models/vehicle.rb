@@ -63,7 +63,7 @@ class Vehicle < ActiveRecord::Base
   end
 
   def event_description
-    "#{vin} #{year} #{make} #{model}"
+    "#{vin} - #{customer}"
   end
 
   def event_url
