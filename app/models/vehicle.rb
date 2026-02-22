@@ -9,117 +9,26 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 class Vehicle < ActiveRecord::Base
-  
+
+  include Redmine::Acts::Searchable
+  include Redmine::Acts::Event
+
   belongs_to :customer
   has_many :issues
   validates_presence_of :customer
   validates :vin, uniqueness: true
   before_save :decode_vin
 
-  def self.searchable_columns
-    ['vin', 'make', 'model', 'year']
-  end
+  acts_as_searchable columns: %w[vin make model year],
+                     scope: ->(_context) { left_joins(:project) },
+                     date_column: :updated_at
 
-  def self.searchable_options
-    {
-      columns: searchable_columns,
-      scope: self.all
-    }
-  end
+  acts_as_event :title => Proc.new {|o| "#{o.to_s}"},
+                :url => Proc.new {|o| { :controller => 'vehicles', :action => 'show', :id => o.id} },
+                :type => :to_s,
+                :description => Proc.new {|o| "#{o.vin} - #{o.customer}"},
+                :datetime => Proc.new {|o| o.updated_at || o.created_at}
 
-  def self.search_result_ranks_and_ids(tokens, user, project = nil, options = {})
-    return {} if tokens.blank?
-
-    scope = self.all
-
-    tokens.each do |token|
-      q = "%#{sanitize_sql_like(token)}%"
-      scope = where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
-    end
-
-    ids = scope.distinct.limit(options[:limit] || 100).pluck(:id)
-
-    # Assign simple uniform ranking
-    ids.each_with_object({}) { |id, h| h[id] = id }
-  end
-
-  def self.search_results_from_ids(ids, *args)
-    return [] if ids.blank?
-
-    Rails.logger.warn "IDS: #{ids.inspect}"
-
-    ids = ids.map(&:to_i)
-    records = where(id: ids).index_by(&:id)
-    ids.map { |id| records[id] }.compact
-  end
-  
-  # ---- Redmine Search Event Interface ----
-  def event_type
-    'vehicle'
-  end
-
-  def event_title
-    to_s
-  end
-
-  def event_description
-    "#{vin} - #{customer}"
-  end
-
-  def event_url
-    Rails.application.routes.url_helpers.vehicle_path(self)
-  end
-
-  def event_datetime
-    updated_at || created_at
-  end
-
-  def project
-    # Vehicles are not project scoped in your schema.
-    # Return nil so global search works cleanly.
-    nil
-  end
-
-  # returns a human readable string
-  def to_s
-    if year.nil? or make.nil? or model.nil?
-      return "#{vin}"
-    else
-      split_vin = vin.scan(/.{1,9}/)
-      return "#{year} #{make} #{model} - #{split_vin[1]}"
-    end
-  end
-  
-  # returns the raw JSON details from NHTSA
-  def details
-    get_details if @details.nil?
-    return @details
-  end
-  
-  # Force Upper Case for make numbers
-  def make=(val)
-    # The to_s is in case you get nil/non-string
-    write_attribute(:make, val.to_s.titleize)
-  end
-  
-  # Force Upper Case for model numbers
-  def model=(val)
-    # The to_s is in case you get nil/non-string
-    write_attribute(:model, val.to_s.titleize)
-  end
-  
-  # Force Upper Case & strip VIN of all illegal chars (for barcode scanner)
-  def vin=(val)
-    val = val.to_s.upcase.gsub(/[^A-HJ-NPR-Za-hj-npr-z\d]+/,"")
-    write_attribute(:vin, val)
-  end
-  
-  # search for a vehicle by vin, make, model, or year
-  def self.search(query)
-    q = sanitize_sql_like(query)
-    where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
-  end
-	
   # decodes a vin and updates self
   def decode_vin
     get_details
@@ -137,14 +46,76 @@ class Vehicle < ActiveRecord::Base
     self.name = to_s
   end
 
-  # reurns all invoices for this vehicle
-  def invoices
-    self.issues.flat_map(&:invoices).uniq.compact
+  # returns the raw JSON details from NHTSA
+  def details
+    get_details if @details.nil?
+    return @details
   end
 
   # returns all estimates for this vehicle
   def estimates
     self.issues.flat_map(&:estimate).uniq.compact
+  end
+
+  # reurns all invoices for this vehicle
+  def invoices
+    self.issues.flat_map(&:invoices).uniq.compact
+  end
+  
+  # Force Upper Case for make numbers
+  def make=(val)
+    # The to_s is in case you get nil/non-string
+    write_attribute(:make, val.to_s.titleize)
+  end
+  
+  # Force Upper Case for model numbers
+  def model=(val)
+    # The to_s is in case you get nil/non-string
+    write_attribute(:model, val.to_s.titleize)
+  end
+  
+  # needed for redmine's search and event system, but we don't want to tie vehicles to projects
+  def project
+    nil
+  end
+
+  # search for a vehicle by vin, make, model, or year
+  def self.search(query)
+    q = sanitize_sql_like(query)
+    where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
+  end
+
+  # Override the defult redmine seach method to rank results by id
+  def self.search_result_ranks_and_ids(tokens, user, project = nil, options = {})
+    return {} if tokens.blank?
+
+    scope = self.all
+
+    tokens.each do |token|
+      q = "%#{sanitize_sql_like(token)}%"
+      scope = where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
+    end
+
+    ids = scope.distinct.limit(options[:limit] || 100).pluck(:id)
+
+    # rank by id
+    ids.each_with_object({}) { |id, h| h[id] = id }
+  end
+
+  # returns a human readable string
+  def to_s
+    if year.nil? or make.nil? or model.nil?
+      return "#{vin}"
+    else
+      split_vin = vin.scan(/.{1,9}/)
+      return "#{year} #{make} #{model} - #{split_vin[1]}"
+    end
+  end
+
+  # Force Upper Case & strip VIN of all illegal chars (for barcode scanner)
+  def vin=(val)
+    val = val.to_s.upcase.gsub(/[^A-HJ-NPR-Za-hj-npr-z\d]+/,"")
+    write_attribute(:vin, val)
   end
   
   private
