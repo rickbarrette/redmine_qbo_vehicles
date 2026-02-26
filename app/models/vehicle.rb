@@ -86,7 +86,6 @@ class Vehicle < ActiveRecord::Base
   end
 
   # Override the defult redmine seach method to rank results by id
-  # Override the defult redmine seach method to rank results by id
   def self.search_result_ranks_and_ids(tokens, user, project = nil, options = {})
     return {} if tokens.blank?
 
