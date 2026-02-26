@@ -12,6 +12,11 @@ async function handleCopy(event) {
     link = event.target;
   }
 
+  // If the text is already "Copied!", don't do anything
+  if (text == "Copied!") {
+    return;
+  }
+
   try {
     // Write to clipboard
     await navigator.clipboard.writeText(text);
