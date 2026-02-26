@@ -86,20 +86,18 @@ class Vehicle < ActiveRecord::Base
   end
 
   # Override the defult redmine seach method to rank results by id
+  # Override the defult redmine seach method to rank results by id
   def self.search_result_ranks_and_ids(tokens, user, project = nil, options = {})
     return {} if tokens.blank?
 
     scope = self.all
 
     tokens.each do |token|
-      q = "%#{sanitize_sql_like(token)}%"
-      scope = where("vin LIKE ? OR make LIKE ? OR model LIKE ? OR year LIKE ?", "%#{q}%", "%#{q}%", "%#{q}%", "%#{q}%") 
+      scope = scope.search(token)
     end
 
     ids = scope.distinct.limit(options[:limit] || 100).pluck(:id)
-
-    # rank by id
-    ids.each_with_object({}) { |id, h| h[id] = id }
+    ids.index_with { |id| id }
   end
 
   # returns a human readable string
