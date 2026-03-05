@@ -17,13 +17,13 @@ module Vehicles
 
       # Called by Redmine QBO Invoice
       def process_invoice_custom_fields(context={})
-        Rails.logger.info "redmine_qbo_vehicles.process_invoice_custom_fields"
+        log "Processing invoice custom fields for invoice ##{context[:invoice].id}"
         issue = context[:issue]
 
         # update the invoive custom fields with infomation from the issue if available
         context[:invoice].custom_fields.each do |cf|
 
-          Rails.logger.info "Checking invoice.custom field: #{cf.name}"
+          log "Checking invoice custom field: #{cf.name}"
           
           # VIN from the attached vehicle 
           begin
@@ -32,13 +32,13 @@ module Vehicles
               # TODO check cf_sync_confict flag once implemented
               if cf.string_value.to_s.blank?
 
-                Rails.logger.info "VIN was blank, updating the invoice vin in quickbooks"
+                log "VIN was blank, updating the invoice vin in quickbooks"
                 vin = context[:issue].vehicle.vin
                 break if vin.nil?
                 
                 if not cf.string_value.to_s.eql? vin
                   cf.string_value = vin.to_s
-                  Rails.logger.info "VIN has changed"
+                  log "VIN has changed"
                   context[:is_changed] = true
                 end
 
@@ -47,7 +47,7 @@ module Vehicles
             end
           rescue
             #do nothing
-            Rails.logger.info "redmine_qbo_vehicles.process_invoice_custom_fields failed, skipping"
+            log "redmine_qbo_vehicles.process_invoice_custom_fields failed, skipping"
             return nil
           end
         end
@@ -55,6 +55,12 @@ module Vehicles
         return context if context[:is_changed]
         
         return nil
+      end
+
+      private
+
+      def log(msg)
+        Rails.logger.info "[InvoiceHookListener] #{msg}"
       end
     end
 
