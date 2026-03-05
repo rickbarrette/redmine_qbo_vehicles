@@ -60,10 +60,15 @@ class VehiclesController < ApplicationController
   # display a specific vehicle
   def show
     begin
-      @vehicle = Vehicle.find_by_id(params[:id])
+      @vehicle = Vehicle.includes(issues: [:estimate, :invoices]).find(params[:id])
       @vin = @vehicle.vin.scan(/.{1,9}/) if @vehicle.vin
-      @issues = @vehicle.issues.order(id: :desc)
-      @closed_issues = (@issues - @issues.open)
+      @issues = @vehicle.issues
+        .joins(:status)
+        .includes(:estimate, :invoices, :status, :project, :tracker, :priority)
+        .order(id: :desc)
+      @open_issues = @issues.select { |i| !i.status.is_closed }
+      @closed_issues = @issues.select { |i| i.status.is_closed }
+
       flash[:error] = t :alert_no_customer if @vehicle.customer.nil?
     rescue 
       flash[:error] = t :alert_vehicle_not_found
