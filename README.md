@@ -10,7 +10,6 @@ The goal of this project is to enable vehicle tracking for customer vehicles wit
 * **Parent Plugin:** [Redmine QuickBooks Online](https://github.com/rickbarrette/redmine_qbo)
 
 ## Compatibility
-
 | Plugin Version | Redmine Version | Ruby Version |
 | :--- | :--- | :--- |
 | 2026.1.2+ | Redmine 6.1 | 3.2+ |
