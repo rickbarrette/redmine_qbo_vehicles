@@ -21,7 +21,7 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
 
   # Ensure redmine_qbo is installed
   begin
-    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.3.11'
+    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.3.13'
   rescue Redmine::PluginNotFound
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end

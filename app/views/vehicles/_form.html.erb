@@ -7,7 +7,7 @@
           <%=t(:field_customer)%>:
           <div class="input">
             <%= f.text_field :customer, class: "customer-name", autocomplete: "off", value: @customer.name, required: true,data: { autocomplete_url: "/customers/autocomplete" } %>
-            <%= f.hidden_field :customer_id, id: "issue_customer_id", value: @customer.id %>
+            <%= f.hidden_field :customer_id, id: "customer_id", value: @customer.id %>
           </div>
         </div>
         
