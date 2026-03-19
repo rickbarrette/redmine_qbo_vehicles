@@ -14,14 +14,14 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   name 'Redmine QBO Vehicles plugin'
   author 'Rick Barrette'
   description 'This is a plugin for Redmine to intergrate with the redmine_qbo plugin to provide vehicle data tracking'
-  version '2026.3.0'
+  version '2026.3.1'
   url 'https://github.com/rickbarrette/redmine_qbo_vehicles'
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '6.1.0'
 
   # Ensure redmine_qbo is installed
   begin
-    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.1.2'
+    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.3.11'
   rescue Redmine::PluginNotFound
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end
