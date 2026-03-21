@@ -8,23 +8,18 @@
 #
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require_dependency 'issue'
-
 module Vehicles
   module Patches
 
     # Patches Redmine's Issues dynamically.
     # Adds a relationship for attahcing a vehilce to an issue
     module IssuePatch
+      extend ActiveSupport::Concern
 
-      ActiveSupport.on_load(:active_record) do
-        
-        Issue.class_eval do
-          belongs_to :vehicle
-        end
-
+      prepended do
+        belongs_to :vehicle
       end
-
+      
     end
   end  
 end

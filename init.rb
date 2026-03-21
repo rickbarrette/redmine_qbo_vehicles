@@ -41,10 +41,4 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
 
 end
 
-# Dynamically load all Hooks & Patches recursively
-base_dir = File.join(File.dirname(__FILE__), 'lib')
-
-# '**' looks inside subdirectories, '*.rb' matches Ruby files
-Dir.glob(File.join(base_dir, '**', '*.rb')).sort.each do |file|
-  require file
-end
+RedmineQboVehicles.setup

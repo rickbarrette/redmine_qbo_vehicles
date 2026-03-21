@@ -14,16 +14,12 @@ module Vehicles
     # Patches Redmine QBO Customer dynamically.
     # Adds a relationship for vehicle ownership by customers
     module CustomerPatch
+      extend ActiveSupport::Concern
 
-      ActiveSupport.on_load(:active_record) do
-
-        Customer.class_eval do
-          has_many :vehicles
-        end
-
+      prepended do
+        has_many :vehicles
       end
-
+      
     end
-
   end
 end
