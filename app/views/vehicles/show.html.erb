@@ -1,5 +1,11 @@
 <h2><%=t(:field_vehicle)%> #<%=@vehicle.id%></h2>
 
+<% unless @vehicle.vin_decoded? %>
+  <div id="vin-status" class="flash notice">
+    <%= t :notice_decoding_vin %>
+  </div>
+<% end %>
+
 <%= render partial: 'vehicles/details', locals: {vehicle: @vehicle} %>
 
 <div class="splitcontent">
@@ -21,3 +27,40 @@
 <h3><%=@closed_issues.count%> <%=t(:label_closed_issues)%></h3>
 
 <%= render partial: 'issues/list_simple', locals: {issues: (@closed_issues)} %>
+
+<script>
+  (function() {
+    const vehicleId = <%= @vehicle.id %>;
+    const alreadyDecoded = <%= @vehicle.vin_decoded? ? 'true' : 'false' %>;
+
+    if (alreadyDecoded) return;
+
+    const interval = 3000; // 3 seconds
+    let attempts = 0;
+    const maxAttempts = 40; // ~2 minutes
+
+    const checkStatus = () => {
+      fetch(`/vehicles/${vehicleId}/status`, {
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.decoded) {
+            window.location.reload();
+          } else {
+            attempts++;
+            if (attempts >= maxAttempts) {
+              clearInterval(timer);
+              console.warn("VIN decode polling timed out");
+            }
+          }
+        })
+        .catch(err => {
+          console.error("Polling error:", err);
+          clearInterval(timer);
+        });
+    };
+
+    const timer = setInterval(checkStatus, interval);
+  })();
+</script>

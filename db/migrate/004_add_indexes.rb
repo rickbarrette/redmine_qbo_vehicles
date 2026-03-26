@@ -8,15 +8,15 @@
 #
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Nest Vehicles under customers
-resources :customers do
-  resources :vehicles
-  get :autocomplete_customer_name, on: :collection
-end
-
-#allow for just vehicles too
-resources :vehicles do
-  member do
-    get :status
+class AddIndexes < ActiveRecord::Migration[7.0]
+  
+  def change
+    add_column :vehicles, :vin_decoded, :boolean, default: false, null: false
+    add_index :vehicles, :vin_decoded
+    add_index :vehicles, :vin, unique: true
+    add_index :vehicles, :make
+    add_index :vehicles, :model
+    add_index :vehicles, :year
   end
+
 end

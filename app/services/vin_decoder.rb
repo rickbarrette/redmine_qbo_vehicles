@@ -8,15 +8,42 @@
 #
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Nest Vehicles under customers
-resources :customers do
-  resources :vehicles
-  get :autocomplete_customer_name, on: :collection
-end
+class VinDecoder
+  Result = Struct.new(:success?, :data, :error)
 
-#allow for just vehicles too
-resources :vehicles do
-  member do
-    get :status
+  def self.call(vin)
+    new(vin).call
+  end
+
+  def initialize(vin)
+    @vin = vin
+  end
+
+  def call
+    log "Decoding VIN"
+    validation = NhtsaVin.validate(@vin)
+    return failure(validation.error) unless validation.valid?
+
+    query = NhtsaVin.get(@vin)
+    return failure(query.error) unless query.valid?
+
+    success(query.response)
+  rescue StandardError => e
+    failure(e.message)
+  end
+
+  private
+
+  def success(data)
+    Result.new(true, data, nil)
+  end
+
+  def failure(error)
+    log "VIN decode failed for #{@vin}: #{error}"
+    Result.new(false, nil, error)
+  end
+
+  def log(msg)
+    Rails.logger.info "[VinDecoder] #{msg}"
   end
 end

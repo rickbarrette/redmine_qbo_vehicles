@@ -8,15 +8,38 @@
 #
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Nest Vehicles under customers
-resources :customers do
-  resources :vehicles
-  get :autocomplete_customer_name, on: :collection
-end
+class VehicleVinDecodeJob < ApplicationJob
+  queue_as :default
+  retry_on StandardError, wait: 5.minutes, attempts: 5
 
-#allow for just vehicles too
-resources :vehicles do
-  member do
-    get :status
+  def perform(vehicle_id)
+    log "Looking up VIN for vehicle ##{vehicle_id}"
+    vehicle = Vehicle.find_by(id: vehicle_id)
+    return unless vehicle&.vin.present?
+    result = VinDecoder.call(vehicle.vin)
+    
+    unless result.success?
+      log "Failed to decode vin"
+      vehicle.update(vin_decoded: false)
+      return
+    end
+
+    details = result.data
+
+    vehicle.update(
+      year: details.year.presence || vehicle.year,
+      make: details.make.presence || vehicle.make,
+      model: details.model.presence || vehicle.model,
+      doors: details.doors.presence || vehicle.doors,
+      trim: details.trim.presence || vehicle.trim,
+      name: vehicle.to_s,
+      vin_decoded: true
+    )
+  end
+
+  private
+
+  def log(msg)
+    Rails.logger.info "[VehicleVinDecodeJob] #{msg}"
   end
 end

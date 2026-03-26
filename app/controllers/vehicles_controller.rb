@@ -76,6 +76,13 @@ class VehiclesController < ApplicationController
     end
   end
 
+  def status
+    vehicle = Vehicle.find(params[:id])
+    render json: {
+      decoded: vehicle.vin_decoded
+    }
+  end
+
   # return an HTML form for editing a vehicle
   def edit
     begin
