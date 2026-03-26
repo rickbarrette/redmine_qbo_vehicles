@@ -32,13 +32,22 @@ class VehicleVinDecodeJob < ApplicationJob
       model: details.model.presence || vehicle.model,
       doors: details.doors.presence || vehicle.doors,
       trim: details.trim.presence || vehicle.trim,
-      name: vehicle.to_s,
+      name: build_name(vehicle, details),
       vin_decoded: true,
       error: nil
     )
   end
 
   private
+
+  def build_name(vehicle, details)
+    if details.year && details.make && details.model
+      suffix = vehicle.vin.to_s[9..]
+      "#{details.year} #{details.make} #{details.model} - #{suffix}"
+    else
+      vehicle.vin
+    end
+  end
 
   def log(msg)
     Rails.logger.info "[VehicleVinDecodeJob] #{msg}"
