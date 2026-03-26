@@ -47,7 +47,6 @@ class Vehicle < ApplicationRecord
   end
 
   def self.search(query)
-    return none if query.blank?
     q = "%#{sanitize_sql_like(query)}%"
     where( "vin LIKE :q OR make LIKE :q OR model LIKE :q OR year LIKE :q", q: q)
   end
