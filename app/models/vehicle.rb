@@ -17,7 +17,7 @@ class Vehicle < ApplicationRecord
   validates :customer, presence: true
   validates :vin, presence: true, uniqueness: true
   before_validation :normalize_vin
-  after_commit :enqueue_vin_decode
+  after_commit :enqueue_vin_decode, if: :saved_change_to_vin?
   acts_as_searchable columns: %w[vin make model year], scope: ->(_context) { all }, date_column: :updated_at
   acts_as_event :title => Proc.new {|o| "#{o.to_s}"},
                 :url => Proc.new {|o| { :controller => 'vehicles', :action => 'show', :id => o.id} },
