@@ -76,10 +76,20 @@ class VehiclesController < ApplicationController
     end
   end
 
+  # used by the polling JS in vehicle#show
   def status
     vehicle = Vehicle.find(params[:id])
+
+    # decode the vin if it hasn't been done for some reason
+    unless vehicle.vin_decoded
+      if vehicle.error.nil?
+        VehicleVinDecodeJob.perform_later(vehicle)
+      end
+    end
+    
     render json: {
-      decoded: vehicle.vin_decoded
+      decoded: vehicle.vin_decoded,
+      error: vehicle.error
     }
   end
 

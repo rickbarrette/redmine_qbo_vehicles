@@ -1,8 +1,12 @@
 <h2><%=t(:field_vehicle)%> #<%=@vehicle.id%></h2>
 
 <% unless @vehicle.vin_decoded? %>
-  <div id="vin-status" class="flash notice">
-    <%= t :notice_decoding_vin %>
+  <div id="vin-status" class="flash <%= @vehicle.error ? "error" : "notice" %>">
+    <% if @vehicle.error%>
+      <%= @vehicle.error %>
+    <% else %>
+      <%= t :notice_decoding_vin %>
+    <% end %>
   </div>
 <% end %>
 
@@ -35,9 +39,11 @@
 
     if (alreadyDecoded) return;
 
-    const interval = 3000; // 3 seconds
+    const interval = 3000;
     let attempts = 0;
-    const maxAttempts = 40; // ~2 minutes
+    const maxAttempts = 40;
+
+    const statusEl = document.getElementById("vin-status");
 
     const checkStatus = () => {
       fetch(`/vehicles/${vehicleId}/status`, {
@@ -45,19 +51,51 @@
       })
         .then(res => res.json())
         .then(data => {
+
+          // SUCCESS → reload
           if (data.decoded) {
             window.location.reload();
-          } else {
-            attempts++;
-            if (attempts >= maxAttempts) {
-              clearInterval(timer);
-              console.warn("VIN decode polling timed out");
+            return;
+          }
+
+          // ERROR → stop + show message
+          if (data.error) {
+            clearInterval(timer);
+
+            if (statusEl) {
+              statusEl.classList.remove("notice");
+              statusEl.classList.add("error");
+              statusEl.textContent = data.error;
             }
+
+            console.warn("VIN decode failed:", data.error);
+            return;
+          }
+
+          // continue polling
+          attempts++;
+          if (attempts >= maxAttempts) {
+            clearInterval(timer);
+
+            if (statusEl) {
+              statusEl.classList.remove("notice");
+              statusEl.classList.add("warning");
+              statusEl.textContent = "VIN decode timed out. Please refresh or try again.";
+            }
+
+            console.warn("VIN decode polling timed out");
           }
         })
         .catch(err => {
-          console.error("Polling error:", err);
           clearInterval(timer);
+
+          if (statusEl) {
+            statusEl.classList.remove("notice");
+            statusEl.classList.add("error");
+            statusEl.textContent = "Error checking VIN status.";
+          }
+
+          console.error("Polling error:", err);
         });
     };
 

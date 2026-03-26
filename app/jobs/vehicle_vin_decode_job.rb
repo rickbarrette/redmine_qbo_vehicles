@@ -20,7 +20,7 @@ class VehicleVinDecodeJob < ApplicationJob
     
     unless result.success?
       log "Failed to decode vin"
-      vehicle.update(vin_decoded: false)
+      vehicle.update(vin_decoded: false, error: result.error)
       return
     end
 
@@ -33,7 +33,8 @@ class VehicleVinDecodeJob < ApplicationJob
       doors: details.doors.presence || vehicle.doors,
       trim: details.trim.presence || vehicle.trim,
       name: vehicle.to_s,
-      vin_decoded: true
+      vin_decoded: true,
+      error: nil
     )
   end
 
