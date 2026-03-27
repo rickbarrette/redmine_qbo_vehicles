@@ -19,8 +19,10 @@ class AddPollingAndIndexes < ActiveRecord::Migration[7.0]
     add_index :vehicles, :model
     add_index :vehicles, :year
 
-    Vehicle.all.each do |v|
-      VehicleVinDecodeJob.perform_later(v.id)
+    Vehicle.find_each.with_index do |vehicle, index|
+      VehicleVinDecodeJob
+        .set(wait: (index / 50).minutes)
+        .perform_later(vehicle.id)
     end
   end
 
