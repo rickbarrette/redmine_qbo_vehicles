@@ -14,7 +14,6 @@ module RedmineQboVehicles
     Customer.prepend Vehicles::Patches::CustomerPatch
 
     Vehicles::Hooks::CustomerShowHookListener
-    Vehicles::Hooks::InvoiceHookListener
     Vehicles::Hooks::IssuesFormHookListener
     Vehicles::Hooks::IssuesShowHookListener
     Vehicles::Hooks::PdfHookListener
