@@ -41,6 +41,11 @@ class Vehicle < ApplicationRecord
     super(val.to_s.strip)
   end
 
+  def name
+    val = self[:name]
+    val.present? ? val : to_s
+  end
+
   # Redmine compatibility shim
   def project
     nil
@@ -63,7 +68,9 @@ class Vehicle < ApplicationRecord
   end
 
   def to_s
+    return self[:name] if self[:name].present?
     return vin if year.blank? || make.blank? || model.blank?
+
     suffix = vin.to_s[9..] || vin
     "#{year} #{make} #{model} - #{suffix}"
   end
