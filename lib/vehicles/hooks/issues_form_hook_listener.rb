@@ -18,14 +18,18 @@ module Vehicles
       def view_issues_form_details_bottom(context={})
 
         # Load the customer's vehicles for selection in the issue form.
+        vehicles = context[:issue].customer&.vehicles || []
+
         context[:controller].send(:render_to_string, {
           partial: 'issues/form_hook_vehicles',
           locals: {
-            vehicle: context[:form].select( :vehicle_id, 
-              context[:issue].customer ? context[:issue].customer.vehicles.pluck(:name, :id) : [], 
-              selected: context[:issue].vehicle ? context[:issue].vehicle.id : nil, 
-              include_blank: true )
-          } 
+            vehicle: context[:form].select(
+              :vehicle_id,
+              vehicles.map { |v| [v.name, v.id] },
+              selected: context[:issue].vehicle&.id,
+              include_blank: true
+            )
+          }
         })
 
       end
