@@ -49,6 +49,18 @@
   </div>
 </div>
 
+<% last = vehicle.issues.last %>
+<% if last %>
+  <% mileage = last.custom_values.find_by(custom_field_id: CustomField.find_by_name("Mileage").id) %>
+  <% if mileage %>
+    <p>
+      <b><%=t(:label_last_service) %></b> <%= last.closed_on.to_date %>
+      at <%= mileage.value %>
+      <%=t(:label_miles) %>
+    </p>
+  <% end %>
+<% end %>
+
 <div style="float: right;">
   <%= button_to t(:label_edit), edit_vehicle_path(vehicle), method: :get%> 
   <%= button_to t(:label_delete), vehicle, method: :delete, data: {confirm: t(:warn_ru_sure)} %> 
