@@ -31,6 +31,7 @@ en:
   label_new_vehicle: "New Customer Vehicle"
   label_no_vehicles: "There are no vehicles containing the term(s)"
   label_search_vehicles: "Search Vehicles"
+  label_vehicle: "Vehicle"
   label_year: "Year"
   no_customer: "Customer no longer exists"
   notice_decoding_vin: "Decoding VIN… this page will update automatically."
