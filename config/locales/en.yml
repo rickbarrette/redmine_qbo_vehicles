@@ -21,6 +21,7 @@ en:
   field_vehicle: "Vehicle"
   field_vehicles: "Vehicles"
   field_vin: "VIN"
+  label_add_vehicle: "Add Vehicle"
   label_customer_vehicles: "Customer Vehicles"
   label_edit: "Edit"
   label_edit_customer_vehicle: "Edit Customer Vehicle"

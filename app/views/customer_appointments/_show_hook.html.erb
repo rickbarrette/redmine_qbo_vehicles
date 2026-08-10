@@ -1,0 +1,9 @@
+<% if appointment.customer.present? %>
+  <% unless appointment.vehicle.present? &&%>
+    <p>
+    <%= link_to new_vehicle_path(customer_id: appointment.customer_id), class: 'icon icon-add' do %>
+      <%= l(:label_add_vehicle) %>
+    <% end %>
+    </p>  
+  <% end %>
+<% end %>
