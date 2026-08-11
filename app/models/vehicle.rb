@@ -33,6 +33,23 @@ class Vehicle < ApplicationRecord
     issues.includes(:invoices).flat_map(&:invoices).uniq.compact
   end
 
+  def last_service
+    return issues
+      .joins(:custom_values)
+      .where(custom_values: { custom_field_id: CustomField.find_by(name: "Mileage")&.id })
+      .where.not(custom_values: { value: ['', nil] })
+      .order(created_on: :desc)
+      .first
+  end
+
+  def last_service_date
+    return last_service.created_on&.to_date
+  end
+
+  def last_service_mileage
+    return last_service&.custom_values&.find_by(custom_field_id: CustomField.find_by(name: "Mileage")&.id)&.value.presence
+  end
+
   def make=(val)
     super(val.to_s.strip)
   end

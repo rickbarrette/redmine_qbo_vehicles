@@ -21,10 +21,22 @@
           <% if show_customer %>
             <%= vehicle.customer %>
           <% end %>
+
+           <% 
+            mileage = vehicle.last_service_mileage
+          %>
+
+          <% if mileage %>
+            <br/>
+            <b><%= t(:label_last_service) %></b> <%= vehicle.last_service_date %>
+            at <%= mileage %> <%= t(:label_miles) %>
+          <% end %>
+
         </div>
+        <br/>
       
       </div>
-      <br/>
+
     </div>
   <% end %>
 
