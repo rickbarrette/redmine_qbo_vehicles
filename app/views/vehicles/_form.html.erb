@@ -42,7 +42,14 @@
         <div class="clearfix">
           <%=t(:field_notes)%>: 
           <div class="input">
-            <%= f.text_area :notes, cols: 60, rows: 10, no_label: true %>
+             <p>
+                <%= f.text_area :notes,
+                                rows: 8,
+                                class: 'wiki-edit',
+                                style: 'width: 95%;',
+                                id: 'customer_appointment_description' %>
+                <%= wikitoolbar_for 'customer_appointment_description' %>
+              </p>
           </div>
         </div>
         

@@ -1,17 +1,20 @@
 <div class="vehicle attribute">
-    <div class="label"><%=t(:field_vehicle)%>:</div>
-    <div class="value"><%= vehicle %></div>
+  <div class="label"><%= t(:field_vehicle) %>:</div>
+  <div class="value"><%= vehicle %></div>
 </div>
     
 <div class="vehicle_vin attribute">
-    <div class="label"><%=t(:field_vin)%>:</div>
-    <div class="value" id="vin">
-        <div id="copyLink" onclick="handleCopy(event)"><%=split_vin[0] if split_vin%><b><%=split_vin[1] if split_vin%></b></div>
-    </div>
-
+  <div class="label"><%= t(:field_vin) %>:</div>
+  <div class="value" id="vin">
+    <div id="copyLink" onclick="handleCopy(event)"><%= split_vin[0] if split_vin %><b><%= split_vin[1] if split_vin %></b></div>
+  </div>
 </div>
     
 <div class="vehicle_notes attribute">
-    <div class="label"><%=t(:field_notes)%>:</div>
-    <pre class="value" id="note-display" style="text-align: left; white-space: pre-wrap; font-family: inherit; "><%=notes%></pre>
+  <div class="label"><%= t(:field_notes) %>:</div>
+  <% if vehicle.present? %>
+    <div class="value wiki">
+      <%= textilizable(@issue.vehicle, :notes) %>
+    </div>
+  <% end %>
 </div>
