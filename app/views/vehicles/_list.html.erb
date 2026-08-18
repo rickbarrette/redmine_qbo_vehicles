@@ -6,7 +6,7 @@
       <div class="container">
 
         <% if show_checkbox %>
-          <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "appointment checkbox" %>
+          <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s }, class: "vehicle-checkbox appointment checkbox" %>
         <% else %>
           <div class='checkbox'>
           </div>
