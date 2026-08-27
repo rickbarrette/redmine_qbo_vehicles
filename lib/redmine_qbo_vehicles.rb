@@ -19,5 +19,13 @@ module RedmineQboVehicles
     Vehicles::Hooks::PdfHookListener
     Vehicles::Hooks::ViewHookListener
     Vehicles::Hooks::CustomerAppointmentShowHookListener
+
+    # If the SubtaskFieldCopier plugin is installed, register our fields
+    if defined?(SubtaskFieldCopier)
+      SubtaskFieldCopier.registered_fields << :vehicle
+      
+      # Ensure there are no duplicates in case of hot-reloads in development mode
+      SubtaskFieldCopier.registered_fields.uniq!
+    end
   end
 end
