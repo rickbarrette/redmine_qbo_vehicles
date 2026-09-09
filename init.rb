@@ -14,7 +14,7 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   name 'Redmine QBO Vehicles plugin'
   author 'Rick Barrette'
   description 'This is a plugin for Redmine to intergrate with the redmine_qbo plugin to provide vehicle data tracking'
-  version '2026.8.2'
+  version '2026.9.0'
   url 'https://github.com/rickbarrette/redmine_qbo_vehicles'
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '6.1.0'
@@ -29,11 +29,15 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   # Add safe attributes for core models
   Issue.safe_attributes :vehicle_id
 
-  # Permissions for security
-  permission :view_vehicles, vehicles: :new, public: false
+  # Global Permissions
+  permission :view_vehicles, { vehicles: [:index, :show] }, global: true
+  permission :add_vehicles, { vehicles: [:new, :create] }, global: true
+  permission :edit_vehicles, { vehicles: [:edit, :update] }, global: true
+  permission :delete_vehicles, { vehicles: [:destroy] }, global: true
+
 
   # Register top menu items
-  menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: :field_vehicles, if: Proc.new { User.current.logged? }
+  menu :top_menu, :vehicles, { controller: :vehicles, action: :index }, caption: :field_vehicles, if: Proc.new { User.current.allowed_to?(:view_vehicles, nil, global: true) }
     
   Redmine::Search.map do |search|
     search.register :vehicles

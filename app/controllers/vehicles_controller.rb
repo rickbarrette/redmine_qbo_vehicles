@@ -13,6 +13,8 @@ class VehiclesController < ApplicationController
 
   include AuthHelper
 
+  # This tells Redmine to check global permissions for the current controller/action
+  before_action :authorize_global
   before_action :require_user
 
   def allowed_params
