@@ -1,4 +1,4 @@
-<% if <% if User.current.allowed_to?(:add_vehicles, nil, global: true) %> %>
+<% if User.current.allowed_to?(:add_vehicles, nil, global: true) %>
   <% if appointment.customer.present? %>
     <% unless appointment.vehicle.present? &&%>
       <p>
