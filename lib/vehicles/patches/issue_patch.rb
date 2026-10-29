@@ -17,7 +17,23 @@ module Vehicles
       extend ActiveSupport::Concern
 
       prepended do
-        belongs_to :vehicle
+        belongs_to :vehicle, optional: true
+
+        # The vehicle must belong to the issue's customer. Only checked when either changes, so older
+        # issues with a mismatch don't block unrelated edits.
+        validate :vehicle_matches_customer, if: -> { will_save_change_to_vehicle_id? || will_save_change_to_customer_id? }
+      end
+
+      private
+
+      def vehicle_matches_customer
+        return if vehicle_id.blank?
+
+        if vehicle.nil?
+          errors.add(:base, ::I18n.t(:error_vehicle_not_found_for_issue))
+        elsif customer_id.present? && vehicle.customer_id != customer_id
+          errors.add(:base, ::I18n.t(:error_vehicle_customer_mismatch, vehicle: vehicle.to_s))
+        end
       end
       
     end

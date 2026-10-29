@@ -3,11 +3,20 @@
     <fieldset>
 
       <%= form_for @vehicle do |f| %> 
+        <%= error_messages_for 'vehicle' %>
+
+        <% if @existing_vehicle %>
+          <p class="flash warning">
+            <%= l(:text_vin_already_on_file) %>
+            <%= link_to @existing_vehicle.to_s, vehicle_path(@existing_vehicle) %>
+          </p>
+        <% end %>
+
         <div class="clearfix">
           <%=t(:field_customer)%>:
           <div class="input">
-            <%= f.text_field :customer, class: "customer-name", autocomplete: "off", value: @customer.name, required: true,data: { autocomplete_url: "/customers/autocomplete" } %>
-            <%= f.hidden_field :customer_id, id: "customer_id", value: @customer.id %>
+            <%= f.text_field :customer, class: "customer-name", autocomplete: "off", value: @vehicle.customer&.name, required: true,data: { autocomplete_url: "/customers/autocomplete" } %>
+            <%= f.hidden_field :customer_id, id: "customer_id" %>
           </div>
         </div>
         
@@ -47,8 +56,8 @@
                                 rows: 8,
                                 class: 'wiki-edit',
                                 style: 'width: 95%;',
-                                id: 'customer_appointment_description' %>
-                <%= wikitoolbar_for 'customer_appointment_description' %>
+                                id: 'vehicle_notes' %>
+                <%= wikitoolbar_for 'vehicle_notes' %>
               </p>
           </div>
         </div>

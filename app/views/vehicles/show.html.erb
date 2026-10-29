@@ -14,7 +14,7 @@
 
 <div class="splitcontent">
     <div class="splitcontentleft">
-        <h4><%=t(:estimates)%>:</h4>
+        <h4><%=t(:label_estimates)%>:</h4>
         <%= render partial: 'estimates/list', locals: {estimates: @vehicle.estimates} %>
     </div>
 
@@ -34,7 +34,9 @@
 
 <script>
   (function() {
-    const vehicleId = <%= @vehicle.id %>;
+    const statusUrl = <%= raw status_vehicle_path(@vehicle).to_json %>;
+    const timedOutMessage = <%= raw l(:notice_vin_decode_timed_out).to_json %>;
+    const checkFailedMessage = <%= raw l(:error_vin_status_check_failed).to_json %>;
     const alreadyDecoded = <%= @vehicle.vin_decoded? ? 'true' : 'false' %>;
 
     if (alreadyDecoded) return;
@@ -46,10 +48,14 @@
     const statusEl = document.getElementById("vin-status");
 
     const checkStatus = () => {
-      fetch(`/vehicles/${vehicleId}/status`, {
-        headers: { 'Accept': 'application/json' }
+      fetch(statusUrl, {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
         .then(data => {
 
           // SUCCESS → reload
@@ -80,7 +86,7 @@
             if (statusEl) {
               statusEl.classList.remove("notice");
               statusEl.classList.add("warning");
-              statusEl.textContent = "VIN decode timed out. Please refresh or try again.";
+              statusEl.textContent = timedOutMessage;
             }
 
             console.warn("VIN decode polling timed out");
@@ -92,7 +98,7 @@
           if (statusEl) {
             statusEl.classList.remove("notice");
             statusEl.classList.add("error");
-            statusEl.textContent = "Error checking VIN status.";
+            statusEl.textContent = checkFailedMessage;
           }
 
           console.error("Polling error:", err);

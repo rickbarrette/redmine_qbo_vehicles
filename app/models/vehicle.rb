@@ -13,7 +13,9 @@ class Vehicle < ApplicationRecord
   include Redmine::Acts::Event
 
   belongs_to :customer
-  has_many :issues
+  # A vehicle with issues can't be deleted, so its service history is never lost. When a vehicle is
+  # sold, change its customer instead: past issues keep their original customer and stay on this vehicle.
+  has_many :issues, dependent: :restrict_with_error
   validates :customer, presence: true
   validates :vin, presence: true, uniqueness: true
   before_validation :normalize_vin
@@ -33,21 +35,49 @@ class Vehicle < ApplicationRecord
     issues.includes(:invoices).flat_map(&:invoices).uniq.compact
   end
 
+  # The issue custom field holding mileage: the one chosen in the plugin settings, else one named "Mileage"
+  def self.mileage_custom_field
+    settings = Setting.plugin_redmine_qbo_vehicles || {}
+    chosen = settings['mileage_custom_field_id'].to_i
+    (IssueCustomField.find_by(id: chosen) if chosen.positive?) || IssueCustomField.find_by(name: 'Mileage')
+  end
+
+  # The most recent issue for this vehicle with a mileage recorded
   def last_service
-    return issues
+    field = self.class.mileage_custom_field
+    return nil unless field
+
+    issues
       .joins(:custom_values)
-      .where(custom_values: { custom_field_id: CustomField.find_by(name: "Mileage")&.id })
+      .where(custom_values: { custom_field_id: field.id })
       .where.not(custom_values: { value: ['', nil] })
       .order(created_on: :desc)
       .first
   end
 
+  # { date:, mileage: } from the most recent issue with a mileage, or nil. One query, cached per vehicle.
+  def last_service_info
+    return @last_service_info if defined?(@last_service_info)
+
+    field = self.class.mileage_custom_field
+    row = if field
+            issues
+              .joins(:custom_values)
+              .where(custom_values: { custom_field_id: field.id })
+              .where.not(custom_values: { value: ['', nil] })
+              .order(created_on: :desc)
+              .pick(:created_on, 'custom_values.value')
+          end
+
+    @last_service_info = row && { date: row[0]&.to_date, mileage: row[1].presence }
+  end
+
   def last_service_date
-    return last_service.created_on&.to_date
+    last_service_info&.dig(:date)
   end
 
   def last_service_mileage
-    return last_service&.custom_values&.find_by(custom_field_id: CustomField.find_by(name: "Mileage")&.id)&.value.presence
+    last_service_info&.dig(:mileage)
   end
 
   def make=(val)
@@ -68,9 +98,19 @@ class Vehicle < ApplicationRecord
     nil
   end
 
+  # Vehicles matching one search term. A 4-digit term also matches the year exactly (comparing the
+  # numeric year with LIKE fails on PostgreSQL). The name column covers "2018 Jeep Wrangler - ..." text.
   def self.search(query)
-    q = "%#{sanitize_sql_like(query)}%"
-    where( "vin LIKE :q OR make LIKE :q OR model LIKE :q OR year LIKE :q", q: q)
+    term = query.to_s.strip
+    q = "%#{sanitize_sql_like(term)}%"
+    scope = where("vin LIKE :q OR make LIKE :q OR model LIKE :q OR name LIKE :q", q: q)
+    scope = scope.or(where(year: term.to_i)) if term.match?(/\A\d{4}\z/)
+    scope
+  end
+
+  # Vehicles matching every word of the query, e.g. "2018 jeep wrangler"
+  def self.search_all(query)
+    query.to_s.split.reduce(all) { |scope, term| scope.where(id: search(term).select(:id)) }
   end
 
   # Override the defult redmine seach method to rank results by id

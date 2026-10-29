@@ -17,8 +17,12 @@ module Vehicles
 
       def view_issues_form_details_bottom(context={})
 
-        # Load the customer's vehicles for selection in the issue form.
-        vehicles = context[:issue].customer&.vehicles || []
+        # Load the customer's vehicles for selection in the issue form. The vehicle already on the issue is
+        # always included: after a vehicle is sold it belongs to another customer, and leaving it out
+        # would blank it on the next save, dropping the issue from that vehicle's history.
+        issue = context[:issue]
+        vehicles = (issue.customer&.vehicles.to_a || [])
+        vehicles |= [issue.vehicle] if issue.vehicle
 
         context[:controller].send(:render_to_string, {
           partial: 'issues/form_hook_vehicles',
@@ -26,8 +30,9 @@ module Vehicles
             vehicle: context[:form].select(
               :vehicle_id,
               vehicles.map { |v| [v.name, v.id] },
-              selected: context[:issue].vehicle&.id,
-              include_blank: true
+              { selected: context[:issue].vehicle&.id, include_blank: true },
+              # vehicles.js swaps in the customer id and reloads this list when the customer changes
+              { data: { vehicles_url: customer_vehicles_path('__CUSTOMER_ID__') } }
             )
           }
         })

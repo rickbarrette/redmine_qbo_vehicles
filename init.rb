@@ -26,11 +26,15 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end
   
+  # Which issue custom field holds the mileage shown as "Last serviced" (blank: a field named "Mileage")
+  settings default: { 'mileage_custom_field_id' => '' }, partial: 'settings/vehicles_settings'
+
   # Add safe attributes for core models
   Issue.safe_attributes :vehicle_id
 
   # Global Permissions
-  permission :view_vehicles, { vehicles: [:index, :show] }, global: true
+  # status: VIN decode progress, polled by the vehicle page
+  permission :view_vehicles, { vehicles: [:index, :show, :status] }, global: true
   permission :add_vehicles, { vehicles: [:new, :create] }, global: true
   permission :edit_vehicles, { vehicles: [:edit, :update] }, global: true
   permission :delete_vehicles, { vehicles: [:destroy] }, global: true

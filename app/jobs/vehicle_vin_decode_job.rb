@@ -10,9 +10,16 @@
 
 class VehicleVinDecodeJob < ApplicationJob
   queue_as :default
-  retry_on StandardError, wait: 5.minutes, attempts: 5
+  # Network trouble is retried; if it never succeeds, the error is shown on the vehicle page
+  retry_on VinDecoder::TransientError, wait: 2.minutes, attempts: 5 do |job, error|
+    vehicle_id = job.arguments.first
+    vehicle_id = vehicle_id.id if vehicle_id.respond_to?(:id)
+    Vehicle.find_by(id: vehicle_id)&.update_columns(error: error.message.to_s.truncate(255), vin_decoded: false)
+  end
 
-  def perform(vehicle_id)
+  # Takes a vehicle id (jobs queued by older versions may pass the Vehicle itself, which still works)
+  def perform(vehicle_or_id)
+    vehicle_id = vehicle_or_id.respond_to?(:id) ? vehicle_or_id.id : vehicle_or_id
     log "Looking up VIN for vehicle ##{vehicle_id}"
     vehicle = Vehicle.find_by(id: vehicle_id)
     return unless vehicle&.vin.present?
@@ -20,13 +27,13 @@ class VehicleVinDecodeJob < ApplicationJob
     
     unless result.success?
       log "Failed to decode vin"
-      vehicle.update(vin_decoded: false, error: result.error)
+      save_decode(vehicle, vin_decoded: false, error: result.error.to_s.truncate(255))
       return
     end
 
     details = result.data
 
-    vehicle.update(
+    save_decode(vehicle,
       year: details.year.presence || vehicle.year,
       make: details.make.presence || vehicle.make,
       model: details.model.presence || vehicle.model,
@@ -39,6 +46,13 @@ class VehicleVinDecodeJob < ApplicationJob
   end
 
   private
+
+  # Saves decode results without validations: a vehicle whose customer was deleted in QuickBooks
+  # would otherwise fail "customer must exist" and lose its decoded details.
+  def save_decode(vehicle, attributes)
+    vehicle.assign_attributes(attributes)
+    vehicle.save(validate: false)
+  end
 
   def build_name(vehicle, details)
     if details.year && details.make && details.model

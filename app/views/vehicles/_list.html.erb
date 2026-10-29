@@ -41,10 +41,10 @@
   <% end %>
 
   <div class="actions">
-    <%= will_paginate vehicles %>
+    <%= will_paginate vehicles, param_name: (local_assigns[:page_param] || :page) %>
   </div>
 
-<%=t(:label_matching)%> <%=vehicles.count%> <%=t(:field_vehicles) %>
+<%=t(:label_matching)%> <%= vehicles.respond_to?(:total_entries) ? vehicles.total_entries : vehicles.size %> <%=t(:field_vehicles) %>
 
 <% else %>
   <p><%=t(:label_no_vehicles)%> <%= params[:search] %>.</p>

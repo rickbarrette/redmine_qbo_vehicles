@@ -11,6 +11,10 @@
 class VinDecoder
   Result = Struct.new(:success?, :data, :error)
 
+  # Raised when the lookup itself fails (network trouble, NHTSA down). Unlike an invalid VIN or "no match",
+  # this is worth retrying, so it's raised for the job to retry instead of being returned as a failure.
+  class TransientError < StandardError; end
+
   def self.call(vin)
     new(vin).call
   end
@@ -29,7 +33,8 @@ class VinDecoder
 
     success(query.response)
   rescue StandardError => e
-    failure(e.message)
+    log "VIN lookup error for #{@vin}: #{e.class}: #{e.message}"
+    raise TransientError, e.message
   end
 
   private

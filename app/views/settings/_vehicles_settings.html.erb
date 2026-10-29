@@ -1,0 +1,9 @@
+<div class="box tabular">
+  <p>
+    <label for="settings_mileage_custom_field_id"><%= l(:label_mileage_custom_field) %></label>
+    <%= select_tag 'settings[mileage_custom_field_id]',
+                   options_from_collection_for_select(IssueCustomField.sorted, :id, :name, settings['mileage_custom_field_id'].to_i),
+                   include_blank: true, id: 'settings_mileage_custom_field_id' %>
+    <em class="info"><%= l(:text_mileage_custom_field_info) %></em>
+  </p>
+</div>

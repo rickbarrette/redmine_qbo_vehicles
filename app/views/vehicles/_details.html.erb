@@ -57,7 +57,8 @@
   <% if User.current.allowed_to?(:edit_vehicles, nil, global: true) %>
     <%= button_to t(:label_edit), edit_vehicle_path(vehicle), method: :get %> 
   <% end %>
-  <% if User.current.allowed_to?(:delete_vehicles, nil, global: true) %>
+  <%# Vehicles with issues can't be deleted, to keep their service history %>
+  <% if User.current.allowed_to?(:delete_vehicles, nil, global: true) && !vehicle.issues.exists? %>
     <%= button_to t(:label_delete), vehicle, method: :delete, data: { confirm: t(:warn_ru_sure) } %> 
   <% end %>
 </div>
