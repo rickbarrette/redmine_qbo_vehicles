@@ -23,7 +23,8 @@ class VehicleVinDecodeJob < ApplicationJob
     log "Looking up VIN for vehicle ##{vehicle_id}"
     vehicle = Vehicle.find_by(id: vehicle_id)
     return unless vehicle&.vin.present?
-    result = VinDecoder.call(vehicle.vin)
+    # The year on file (if someone entered one) helps NHTSA, especially for older vehicles
+    result = VinDecoder.call(vehicle.vin, model_year: vehicle.year)
     
     unless result.success?
       log "Failed to decode vin"

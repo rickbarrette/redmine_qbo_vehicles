@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
 
-gem 'nhtsa_vin'
+# No extra gems: VIN decoding talks to NHTSA's vPIC service directly (app/services/vin_decoder.rb)
