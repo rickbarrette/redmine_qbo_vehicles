@@ -17,12 +17,18 @@ module Vehicles
 
       def view_issues_form_details_bottom(context={})
 
-        # Load the customer's vehicles for selection in the issue form. The vehicle already on the issue is
-        # always included: after a vehicle is sold it belongs to another customer, and leaving it out
-        # would blank it on the next save, dropping the issue from that vehicle's history.
+        # The selected customer's vehicles. Changing the customer reloads the issue form (redmine_qbo's
+        # updateIssueFrom), which re-renders this list for the new customer.
+        #
+        # An existing issue keeps its vehicle in the list while its customer is unchanged: if the
+        # vehicle was sold since, it belongs to another customer now, and leaving it out would blank it
+        # on the next save, dropping the issue from the vehicle's history. Once the customer is changed
+        # in the form, only the new customer's vehicles are offered.
         issue = context[:issue]
-        vehicles = (issue.customer&.vehicles.to_a || [])
-        vehicles |= [issue.vehicle] if issue.vehicle
+        vehicles = issue.customer&.vehicles.to_a || []
+        if issue.vehicle && issue.persisted? && !issue.customer_id_changed?
+          vehicles |= [issue.vehicle]
+        end
 
         context[:controller].send(:render_to_string, {
           partial: 'issues/form_hook_vehicles',
@@ -30,9 +36,8 @@ module Vehicles
             vehicle: context[:form].select(
               :vehicle_id,
               vehicles.map { |v| [v.name, v.id] },
-              { selected: context[:issue].vehicle&.id, include_blank: true },
-              # vehicles.js swaps in the customer id and reloads this list when the customer changes
-              { data: { vehicles_url: customer_vehicles_path('__CUSTOMER_ID__') } }
+              selected: issue.vehicle&.id,
+              include_blank: true
             )
           }
         })

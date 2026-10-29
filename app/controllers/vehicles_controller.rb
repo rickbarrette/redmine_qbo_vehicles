@@ -21,17 +21,13 @@ class VehiclesController < ApplicationController
     params.require(:vehicle).permit(:year, :make, :model, :customer_id, :notes, :vin)
   end
 
-  # Vehicles for one customer (also as JSON for the issue form), or search results
+  # Vehicles for one customer, or search results
   def index
     if params[:customer_id].present?
       @customer = Customer.find_by(id: params[:customer_id])
       return render_404 unless @customer
 
-      vehicles = @customer.vehicles.order(:year, :make, :model)
-      respond_to do |format|
-        format.html { @vehicles = vehicles.paginate(page: params[:page]) }
-        format.json { render json: vehicles.map { |v| { id: v.id, name: v.name } } }
-      end
+      @vehicles = @customer.vehicles.order(:year, :make, :model).paginate(page: params[:page])
       return
     end
 
