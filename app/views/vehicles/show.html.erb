@@ -1,3 +1,14 @@
+<div class="contextual">
+  <% if User.current.allowed_to?(:edit_vehicles, nil, global: true) %>
+    <%= link_to sprite_icon('edit', l(:button_edit)), edit_vehicle_path(@vehicle),
+                class: 'icon icon-edit', accesskey: accesskey(:edit) %>
+  <% end %>
+  <%# Vehicles with issues can't be deleted, to keep their service history %>
+  <% if User.current.allowed_to?(:delete_vehicles, nil, global: true) && !@vehicle.issues.exists? %>
+    <%= delete_link vehicle_path(@vehicle) %>
+  <% end %>
+</div>
+
 <h2><%=t(:field_vehicle)%> #<%=@vehicle.id%></h2>
 
 <% unless @vehicle.vin_decoded? %>
