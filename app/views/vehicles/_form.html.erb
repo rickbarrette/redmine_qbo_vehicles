@@ -1,72 +1,26 @@
-<div class="row">
-  <div class="span6 columns">
-    <fieldset>
+<%= error_messages_for 'vehicle' %>
 
-      <%= form_for @vehicle do |f| %> 
-        <%= error_messages_for 'vehicle' %>
-
-        <% if @existing_vehicle %>
-          <p class="flash warning">
-            <%= l(:text_vin_already_on_file) %>
-            <%= link_to @existing_vehicle.to_s, vehicle_path(@existing_vehicle) %>
-          </p>
-        <% end %>
-
-        <div class="clearfix">
-          <%=t(:field_customer)%>:
-          <div class="input">
-            <%= f.text_field :customer, class: "customer-name", autocomplete: "off", value: @vehicle.customer&.name, required: true,data: { autocomplete_url: "/customers/autocomplete" } %>
-            <%= f.hidden_field :customer_id, id: "customer_id" %>
-          </div>
-        </div>
-        
-        <div class="clearfix">
-          <%=t(:label_year)%>: 
-          <div class="input">
-            <%= f.number_field :year, autocomplete: "off"  %>
-          </div>
-        </div>
-        
-        <div class="clearfix">
-          <%=t(:label_make)%>:
-          <div class="input">
-            <%= f.text_field :make, autocomplete: "off"  %>
-          </div>
-        </div>
-        
-        <div class="clearfix">
-          <%=t(:label_model)%>:
-          <div class="input">
-            <%= f.text_field :model, autocomplete: "off"  %>
-          </div>
-        </div>
-        
-        <div class="clearfix">
-          <%=t(:field_vin)%>:
-          <div class="input">
-            <%= f.text_field :vin , autofocus: true %>
-          </div>
-        </div>
-        
-        <div class="clearfix">
-          <%=t(:field_notes)%>: 
-          <div class="input">
-             <p>
-                <%= f.text_area :notes,
-                                rows: 8,
-                                class: 'wiki-edit',
-                                style: 'width: 95%;',
-                                id: 'vehicle_notes' %>
-                <%= wikitoolbar_for 'vehicle_notes' %>
-              </p>
-          </div>
-        </div>
-        
-       <div class="actions">
-        <%= f.submit %>
-       </div>
-      <% end %>
-
-    </fieldset>
+<% if @existing_vehicle %>
+  <div class="flash warning">
+    <%= l(:text_vin_already_on_file) %>
+    <%= link_to @existing_vehicle.to_s, vehicle_path(@existing_vehicle) %>
   </div>
+<% end %>
+
+<div class="box tabular">
+  <p>
+    <%# Customer autocomplete from redmine_qbo: fills the hidden customer_id %>
+    <%= f.text_field :customer, label: :field_customer, required: true, size: 60,
+                     value: @vehicle.customer&.name, class: 'customer-name', autocomplete: 'off',
+                     data: { autocomplete_url: '/customers/autocomplete' } %>
+    <%= f.hidden_field :customer_id, id: 'customer_id' %>
+  </p>
+  <p><%= f.text_field :vin, label: :field_vin, required: true, size: 20, maxlength: 17, autofocus: true %></p>
+  <p><%= f.number_field :year, label: :label_year, min: 1900, max: Date.today.year + 2, autocomplete: 'off' %></p>
+  <p><%= f.text_field :make, label: :label_make, size: 30, autocomplete: 'off' %></p>
+  <p><%= f.text_field :model, label: :label_model, size: 30, autocomplete: 'off' %></p>
+  <p>
+    <%= f.text_area :notes, label: :field_notes, rows: 8, class: 'wiki-edit', id: 'vehicle_notes' %>
+    <%= wikitoolbar_for 'vehicle_notes' %>
+  </p>
 </div>
