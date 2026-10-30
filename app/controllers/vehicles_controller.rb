@@ -56,7 +56,6 @@ class VehiclesController < ApplicationController
   end
 
   def show
-    @vin = @vehicle.vin.scan(/.{1,9}/) if @vehicle.vin
     @issues = @vehicle.issues
       .joins(:status)
       .includes(:estimate, :invoices, :status, :project, :tracker, :priority)

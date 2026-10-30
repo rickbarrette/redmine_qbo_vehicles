@@ -15,7 +15,8 @@ module Vehicles
       def view_layouts_base_html_head(context = {})
         safe_join([
           stylesheet_link_tag('style', plugin: :redmine_qbo_vehicles, media: :all),
-          javascript_include_tag('copy', plugin: :redmine_qbo_vehicles)
+          # VIN click-to-copy, written into the page (see vehicles/_copy_vin_script)
+          context[:hook_caller].render(partial: 'vehicles/copy_vin_script')
         ])
       end
 

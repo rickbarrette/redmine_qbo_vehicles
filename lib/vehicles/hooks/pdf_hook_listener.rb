@@ -20,9 +20,17 @@ module Vehicles
       def pdf_left(context={})
         output = []
         output << [l(:field_vehicles), context[:issue].vehicle ? context[:issue].vehicle.to_s : nil]
-        output << [l(:field_vin), context[:issue].vehicle ? context[:issue].vehicle.vin.gsub(/(.{9})/, '\1 ') : nil]
+        output << [l(:field_vin), context[:issue].vehicle ? pdf_vin(context[:issue].vehicle.vin) : nil]
         output << [l(:field_notes), context[:issue].vehicle ? context[:issue].vehicle.notes : nil]
         return output
+      end
+
+      private
+
+      # 17-character VINs are split before the last 8 (what dealerships ask for); others stay whole
+      def pdf_vin(vin)
+        vin = vin.to_s
+        vin.length == 17 ? "#{vin[0, 9]} #{vin[9, 8]}" : vin
       end
         
     end

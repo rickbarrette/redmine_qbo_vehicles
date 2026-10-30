@@ -1,0 +1,10 @@
+<%#
+  A VIN that can be clicked (or Enter/Space) to copy it. 17-character VINs show the last 8 in bold,
+  which is what dealerships ask for when ordering parts; older or short VINs are shown plain.
+  The copy script is in vehicles/_copy_vin_script.
+  locals: vin
+%>
+<% if vin.present? %>
+  <% vin = vin.to_s %>
+  <div class="vehicle-vin" data-vin="<%= vin %>" role="button" tabindex="0" title="<%= l(:text_click_to_copy) %>"><% if vin.length == 17 %><%= vin[0, 9] %><b><%= vin[9, 8] %></b><% else %><%= vin %><% end %></div>
+<% end %>

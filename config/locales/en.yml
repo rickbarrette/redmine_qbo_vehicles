@@ -59,3 +59,6 @@ en:
   notice_vin_decode_timed_out: "VIN decode timed out. Please refresh or try again."
   text_mileage_custom_field_info: "Issue custom field used for \"Last serviced\" mileage. Leave blank to use a field named Mileage."
   text_vin_already_on_file: "A vehicle with this VIN is already on file:"
+  text_click_to_copy: "Click to copy"
+  text_copied: "Copied!"
+  text_copy_failed: "Couldn't copy"

@@ -19,8 +19,8 @@ module Vehicles
         context[:controller].send(:render_to_string, {
           partial: 'issues/show_issue_view_right',
             locals: {
-              vehicle: context[:issue].vehicle ? link_to(context[:issue].vehicle) : nil, 
-              split_vin: context[:issue].vehicle ? context[:issue].vehicle.vin.to_s.scan(/.{1,9}/) : nil
+              vehicle: context[:issue].vehicle ? link_to(context[:issue].vehicle) : nil,
+              vin: context[:issue].vehicle&.vin
             } 
           })
       end

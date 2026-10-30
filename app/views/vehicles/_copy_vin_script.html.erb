@@ -1,0 +1,82 @@
+<%#
+The MIT License (MIT)
+
+Copyright (c) 2016 - 2026 rick barrette
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+%>
+<%#
+  Copies a VIN (vehicles/_vin) when it's clicked or activated with Enter/Space. Written into the page
+  head by the layout hook rather than served as a compiled asset, so it can't 404 when Redmine's asset
+  manifest is out of date. One listener on the page handles every VIN, including ones added later.
+%>
+<style>
+  .vehicle-vin { cursor: pointer; display: inline-block; }
+</style>
+<%= javascript_tag do %>
+(function () {
+  var COPIED = <%= raw l(:text_copied).to_json %>;
+  var FAILED = <%= raw l(:text_copy_failed).to_json %>;
+
+  // Clipboard API where available (HTTPS); falls back to the older copy command otherwise
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(area);
+      ok ? resolve() : reject(new Error('copy command failed'));
+    });
+  }
+
+  function copyVin(el) {
+    if (el.dataset.copyBusy === '1') return;
+    el.dataset.copyBusy = '1';
+    var original = el.innerHTML;
+
+    function flash(message, color) {
+      el.innerHTML = '<b>' + message + '</b>';
+      el.style.color = color;
+      setTimeout(function () {
+        el.innerHTML = original;
+        el.style.color = '';
+        el.dataset.copyBusy = '';
+      }, 2000);
+    }
+
+    copyText(el.dataset.vin).then(
+      function () { flash(COPIED, '#2e7d32'); },
+      function (err) {
+        console.error('Unable to copy VIN', err);
+        flash(FAILED, '#c62828');
+      }
+    );
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest && e.target.closest('.vehicle-vin[data-vin]');
+    if (el) copyVin(el);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var el = e.target.closest && e.target.closest('.vehicle-vin[data-vin]');
+    if (!el) return;
+    e.preventDefault();
+    copyVin(el);
+  });
+})();
+<% end %>

@@ -18,7 +18,7 @@
           <tr>
             <th><%= t(:field_vin) %></th>
             <td>
-               <div onclick="handleCopy(event)"><%= @vin[0] if @vin %><b><%= @vin[1] if @vin %></b></div>
+               <%= render partial: 'vehicles/vin', locals: { vin: vehicle.vin } %>
             </td>
           </tr>
 
