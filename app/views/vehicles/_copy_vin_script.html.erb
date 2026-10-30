@@ -15,7 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   manifest is out of date. One listener on the page handles every VIN, including ones added later.
 %>
 <style>
-  .vehicle-vin { cursor: pointer; display: inline-block; }
+  /* Fills its cell, like the click-to-copy Mileage value on issues */
+  .vehicle-vin { cursor: pointer; display: block; }
 </style>
 <%= javascript_tag do %>
 (function () {
