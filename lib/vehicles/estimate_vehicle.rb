@@ -18,7 +18,7 @@ module Vehicles
     # estimate's details leave them out, so a VIN field added recently in QuickBooks would never match.
     def vin(estimate)
       return nil unless estimate
-      RedmineQboBilling::EstimateWriter.vin_for(estimate.id)
+      QboFields.estimate_vin(estimate.id)
     rescue StandardError
       nil
     end
@@ -34,6 +34,13 @@ module Vehicles
       return nil if estimate_vin.blank?
 
       vehicles(estimate).detect { |v| v.vin.to_s.strip.casecmp?(estimate_vin) }
+    end
+
+    # A customer's vehicle with the given VIN, or nil
+    def for_vin(customer, vin)
+      return nil if vin.blank? || !customer.respond_to?(:vehicles)
+
+      customer.vehicles.detect { |v| v.vin.to_s.strip.casecmp?(vin.to_s.strip) }
     end
   end
 end

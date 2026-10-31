@@ -20,6 +20,11 @@ module Vehicles
         ])
       end
 
+      # redmine_qbo's estimate/invoice editor: VIN and Mileage behaviour (vehicles/_qbo_editor_script)
+      def view_qbo_estimate_form_bottom(context = {})
+        context[:hook_caller].render(partial: 'vehicles/qbo_editor_script')
+      end
+
       # redmine_qbo's Create issues from estimate page: a Vehicle for all the issues, preselected from the
       # estimate's VIN
       def view_qbo_estimate_issues_form(context = {})

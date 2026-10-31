@@ -14,32 +14,56 @@ module Vehicles
     # Hooks for redmine_qbo's estimates and invoices
     class BillingHookListener < Redmine::Hook::Listener
 
-      # Each work order's VIN and mileage, so the invoice's VIN and mileage boxes are filled when its time or
-      # estimates are imported (redmine_qbo uses the highest mileage). Mileage comes from Redmine's issue
-      # custom field named "Mileage" (any capitalisation).
+      # Each work order's VIN (its vehicle) and mileage (Redmine's issue custom field named "Mileage"), keyed
+      # by the QuickBooks VIN and Mileage fields. The editor script (vehicles/_qbo_editor_script) uses them
+      # when time or estimates are imported; redmine_qbo_lineitems puts them on its estimates.
       def qbo_billing_issue_values(context = {})
         issues = Array(context[:issues])
-        vins = issues.each_with_object({}) do |issue, by_issue|
-          vin = issue.respond_to?(:vehicle) ? issue.vehicle&.vin : nil
-          by_issue[issue.id] = vin if vin.present?
+        values = {}
+        if (vin = QboFields.vin_field)
+          values[vin.id.to_s] = issues.each_with_object({}) do |issue, by_issue|
+            value = issue.respond_to?(:vehicle) ? issue.vehicle&.vin : nil
+            by_issue[issue.id] = value if value.present?
+          end
         end
-        { vin: vins, mileage: mileage_by_issue(issues) }
+        if (mileage = QboFields.mileage_field)
+          values[mileage.id.to_s] = mileage_by_issue(issues)
+        end
+        values
       end
 
-      # The customer's vehicles as VIN suggestions for the estimate/invoice VIN box
-      def qbo_billing_vin_options(context = {})
+      # The customer's vehicles as suggestions for the VIN box
+      def qbo_billing_field_options(context = {})
         customer = context[:customer]
-        return [] unless customer.respond_to?(:vehicles)
+        vin = QboFields.vin_field
+        return {} unless vin && customer.respond_to?(:vehicles)
 
-        customer.vehicles.select { |v| v.vin.present? }.map { |v| { vin: v.vin, name: v.to_s } }
+        { vin.id.to_s => customer.vehicles.select { |v| v.vin.present? }.map { |v| { value: v.vin, label: v.to_s } } }
       end
 
-      # The VIN for a document's work orders (e.g. an invoice made from an estimate without a VIN): their
-      # vehicle when they share one, nothing otherwise
-      def qbo_billing_default_vin(context = {})
-        vins = Array(context[:issues]).filter_map { |issue| issue.respond_to?(:vehicle) ? issue.vehicle&.vin.presence : nil }
-                                      .map(&:upcase).uniq
-        vins.first if vins.size == 1
+      # Values for a document's work orders (e.g. an invoice made from an estimate that leaves them blank):
+      # their vehicle's VIN when they share one, and the highest mileage
+      def qbo_billing_field_defaults(context = {})
+        issues = Array(context[:issues])
+        defaults = {}
+        if (vin = QboFields.vin_field)
+          vins = issues.filter_map { |issue| issue.respond_to?(:vehicle) ? issue.vehicle&.vin.presence : nil }.map(&:upcase).uniq
+          defaults[vin.id.to_s] = vins.first if vins.size == 1
+        end
+        if (mileage = QboFields.mileage_field)
+          highest = mileage_by_issue(issues).values.filter_map { |m| m.to_s.delete(',').strip.presence&.to_f }.max
+          defaults[mileage.id.to_s] = (highest % 1).zero? ? highest.to_i.to_s : highest.to_s if highest
+        end
+        defaults
+      end
+
+      # redmine_qbo_calendar's Add appointment link on an estimate: the customer's vehicle with the estimate's VIN
+      def qbo_calendar_appointment_params(context = {})
+        vin = QboFields.vin_field
+        return {} unless vin
+
+        vehicle = EstimateVehicle.for_vin(context[:customer], (context[:custom_fields] || {})[vin.id.to_s])
+        vehicle ? { vehicle_id: vehicle.id } : {}
       end
 
       # Issues created from an estimate get a vehicle: the one picked on the Create issues page (or passed in,

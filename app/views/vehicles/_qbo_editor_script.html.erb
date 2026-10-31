@@ -1,0 +1,51 @@
+<%#
+  redmine_qbo's estimate/invoice editor: this plugin's part of the VIN and Mileage custom fields (see
+  Vehicles::QboFields). Uses redmine_qbo's window.qboEditor and its qbo:imported event:
+  - VINs are shown in capitals
+  - importing time or estimates fills the VIN from the work orders' vehicle (or an estimate's own VIN when
+    its work orders give none), warns when they're for more than one vehicle, and fills the highest mileage
+%>
+<% vin_field = Vehicles::QboFields.vin_field %>
+<% mileage_field = Vehicles::QboFields.mileage_field %>
+<%= javascript_tag do %>
+$(function () {
+  var ed = window.qboEditor;
+  if (!ed) return;
+  var vinId = <%= raw (vin_field && vin_field.id.to_s).to_json %>;
+  var mileageId = <%= raw (mileage_field && mileage_field.id.to_s).to_json %>;
+  var $vin = vinId ? ed.field(vinId) : $();
+
+  $vin.css({ fontFamily: 'monospace', textTransform: 'uppercase', width: '220px' })
+      .on('blur', function () { this.value = this.value.trim().toUpperCase(); });
+  <% if vin_field.nil? && User.current.admin? && RedmineQboBilling::Company.settings.present? %>
+  $('<em class="info">').text(<%= raw l(:text_no_vin_field).to_json %>).appendTo(ed.form.find('.qbo-estimate-details').first());
+  <% end %>
+
+  var number = function (value) {
+    var n = parseFloat(String(value || '').replace(/[^0-9.\-]/g, ''));
+    return isNaN(n) ? null : n;
+  };
+
+  ed.form.on('qbo:imported', function (event, data) {
+    var values = data.issue_values || {}, vins = [], mileage = null;
+    var addVin = function (vin) {
+      vin = String(vin || '').trim().toUpperCase();
+      if (vin && vins.indexOf(vin) < 0) vins.push(vin);
+    };
+    (data.issue_ids || []).forEach(function (id) {
+      var v = values[String(id)] || {};
+      if (vinId) addVin(v[vinId]);
+      var miles = mileageId ? number(v[mileageId]) : null;
+      if (miles !== null && (mileage === null || miles > mileage)) mileage = miles;
+    });
+    // An imported estimate whose work orders give no VIN adds its own
+    (data.estimates || []).forEach(function (estimate) {
+      var fromIssue = vinId && estimate.issue_id && (values[String(estimate.issue_id)] || {})[vinId];
+      if (vinId && !fromIssue) addVin((estimate.custom_fields || {})[vinId]);
+    });
+    if (vins.length === 1 && $vin.length && !$vin.prop('disabled')) $vin.val(vins[0]);
+    if (mileage !== null) ed.field(mileageId).val(String(mileage));
+    if (vins.length > 1) window.alert(<%= raw l(:text_invoice_many_vehicles).to_json %> + ' ' + vins.join(', '));
+  });
+});
+<% end %>

@@ -34,6 +34,8 @@ en:
   label_search_vehicles: "Search Vehicles"
   label_unknown: "Unknown"
   label_vehicle: "Vehicle"
+  text_invoice_many_vehicles: "These work orders are for more than one vehicle:"
+  text_no_vin_field: "QuickBooks isn't sharing a text custom field named VIN, so VINs can't be filled in."
   text_estimate_vehicle_matched: "Matches the estimate's VIN (%{vin})."
   text_estimate_vehicle_unmatched: "None of the customer's vehicles has the estimate's VIN (%{vin}). Pick the vehicle for these issues, or add it to the customer first."
   text_estimate_vehicle_no_vin: "The estimate has no VIN. Pick the vehicle for these issues."
