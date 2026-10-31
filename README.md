@@ -18,6 +18,7 @@ The goal of this project is to enable vehicle tracking for customer vehicles wit
 
 * **Asset Tracking:** Adds vehicles owned by customers to the system.
 * **Issue Association:** Allows these vehicles to be attached directly to Redmine issues for better service tracking.
+* **Invoices (with [redmine_qbo_billing](https://github.com/rickbarrette/redmine_qbo_billing)):** importing a work order's time or estimate fills the invoice's VIN box with its vehicle's VIN, and an invoice whose work orders are for more than one vehicle isn't saved (one vehicle per invoice).
 
 ## Installation
 

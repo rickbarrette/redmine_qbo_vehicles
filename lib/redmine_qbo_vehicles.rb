@@ -19,6 +19,7 @@ module RedmineQboVehicles
     Vehicles::Hooks::PdfHookListener
     Vehicles::Hooks::ViewHookListener
     Vehicles::Hooks::CustomerAppointmentShowHookListener
+    Vehicles::Hooks::BillingHookListener
 
     # If the SubtaskFieldCopier plugin is installed, register our fields
     if defined?(SubtaskFieldCopier)

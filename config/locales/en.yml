@@ -52,6 +52,7 @@ en:
   warn_ru_sure: "Are you sure?"
 
   alert_vehicle_has_issues: "This vehicle has issues, so it can't be deleted (that would lose its service history). If it was sold, change its customer instead."
+  error_one_vehicle_per_invoice: "Only one vehicle per invoice: these work orders are for %{vehicles}. Make a separate invoice for each vehicle."
   error_vehicle_customer_mismatch: "Vehicle %{vehicle} belongs to a different customer. Pick one of this customer's vehicles."
   error_vehicle_not_found_for_issue: "The selected vehicle no longer exists."
   error_vin_status_check_failed: "Error checking VIN status."
