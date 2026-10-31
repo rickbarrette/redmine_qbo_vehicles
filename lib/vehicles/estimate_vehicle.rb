@@ -14,10 +14,11 @@ module Vehicles
   module EstimateVehicle
     module_function
 
-    # The VIN on the estimate, or nil
+    # The VIN on the estimate, or nil. Read by redmine_qbo with QuickBooks' newer custom fields: the local
+    # estimate's details leave them out, so a VIN field added recently in QuickBooks would never match.
     def vin(estimate)
-      company = RedmineQboBilling::Company
-      RedmineQboBilling::EstimateWriter.custom_value(estimate.details, company.vin_field, company::VIN_NAME).to_s.strip.presence
+      return nil unless estimate
+      RedmineQboBilling::EstimateWriter.vin_for(estimate.id)
     rescue StandardError
       nil
     end
