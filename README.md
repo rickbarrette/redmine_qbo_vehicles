@@ -18,7 +18,9 @@ The goal of this project is to enable vehicle tracking for customer vehicles wit
 
 * **Asset Tracking:** Adds vehicles owned by customers to the system.
 * **Issue Association:** Allows these vehicles to be attached directly to Redmine issues for better service tracking.
-* **Invoices (redmine_qbo 2026.11.0+):** importing a work order's time or estimate fills the invoice's VIN box with its vehicle's VIN, and an invoice whose work orders are for more than one vehicle isn't saved (one vehicle per invoice).
+* **Invoices (redmine_qbo 2026.11.0+):** importing a work order's time or estimate fills the invoice's VIN box with its vehicle's VIN and the mileage box with the highest value of the work orders' **Mileage** issue custom field (Redmine's own custom field named "Mileage"), and an invoice whose work orders are for more than one vehicle isn't saved (one vehicle per invoice).
+* **Estimates (redmine_qbo 2026.11.0+):** the VIN box suggests the customer's vehicles (one vehicle fills it in), and issues created from an estimate get the appointment's vehicle, or else the customer's vehicle whose VIN is on the estimate.
+* **Customer page:** ticking a vehicle adds it to the New issue link.
 
 ## Installation
 

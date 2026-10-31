@@ -14,13 +14,34 @@ module Vehicles
     # Hooks for redmine_qbo's estimates and invoices
     class BillingHookListener < Redmine::Hook::Listener
 
-      # Each work order's VIN, so the invoice's VIN box is filled when its time or estimates are imported
+      # Each work order's VIN and mileage, so the invoice's VIN and mileage boxes are filled when its time or
+      # estimates are imported (redmine_qbo uses the highest mileage). Mileage comes from Redmine's issue
+      # custom field named "Mileage" (any capitalisation).
       def qbo_billing_issue_values(context = {})
-        vins = Array(context[:issues]).each_with_object({}) do |issue, by_issue|
+        issues = Array(context[:issues])
+        vins = issues.each_with_object({}) do |issue, by_issue|
           vin = issue.respond_to?(:vehicle) ? issue.vehicle&.vin : nil
           by_issue[issue.id] = vin if vin.present?
         end
-        { vin: vins }
+        { vin: vins, mileage: mileage_by_issue(issues) }
+      end
+
+      # The customer's vehicles as VIN suggestions for the estimate/invoice VIN box
+      def qbo_billing_vin_options(context = {})
+        customer = context[:customer]
+        return [] unless customer.respond_to?(:vehicles)
+
+        customer.vehicles.select { |v| v.vin.present? }.map { |v| { vin: v.vin, name: v.to_s } }
+      end
+
+      # Issues created from an estimate get a vehicle: the one passed in (e.g. redmine_qbo_calendar's
+      # appointment vehicle), or the customer's vehicle whose VIN is on the estimate
+      def qbo_billing_build_issue(context = {})
+        issue = context[:issue]
+        return unless issue.respond_to?(:vehicle_id=)
+
+        vehicle_id = context.dig(:defaults, :vehicle_id).presence || vehicle_id_from_vin(context[:estimate])
+        issue.vehicle_id = vehicle_id if vehicle_id
       end
 
       # One vehicle per invoice (OSOR SOP): an invoice whose work orders are for more than one vehicle
@@ -36,6 +57,34 @@ module Vehicles
           "#{vehicle} (#{numbers.join(', ')})"
         end
         I18n.t(:error_one_vehicle_per_invoice, vehicles: details.join('; '))
+      end
+
+      private
+
+      # The customer's vehicle whose VIN is on the estimate's QuickBooks VIN field, or nil
+      def vehicle_id_from_vin(estimate)
+        customer = estimate&.customer
+        return nil unless customer.respond_to?(:vehicles)
+
+        company = RedmineQboBilling::Company
+        vin = RedmineQboBilling::EstimateWriter.custom_value(estimate.details, company.vin_field, company::VIN_NAME).to_s.strip
+        return nil if vin.empty?
+
+        customer.vehicles.detect { |v| v.vin.to_s.casecmp?(vin) }&.id
+      rescue StandardError
+        nil
+      end
+
+      # { issue_id => mileage } from the issue custom field named "Mileage"; empty without that field
+      def mileage_by_issue(issues)
+        issue_ids = issues.map(&:id)
+        field = IssueCustomField.all.detect { |f| f.name.to_s.strip.casecmp?('mileage') }
+        return {} if field.nil? || issue_ids.empty?
+
+        CustomValue.where(customized_type: 'Issue', customized_id: issue_ids, custom_field_id: field.id)
+                   .where.not(value: [nil, ''])
+                   .pluck(:customized_id, :value)
+                   .to_h
       end
 
     end
