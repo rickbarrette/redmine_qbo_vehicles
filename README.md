@@ -13,14 +13,15 @@ The goal of this project is to enable vehicle tracking for customer vehicles wit
 | Plugin Version | Redmine Version | Ruby Version |
 | :--- | :--- | :--- |
 | 2026.1.2+ | Redmine 6.1 | 3.2+ |
+| 2026.11.2+ | Redmine 6.1 (redmine_qbo 2026.11.2+) | 3.2+ |
 
 ## Features
 
 * **Asset Tracking:** Adds vehicles owned by customers to the system.
 * **Issue Association:** Allows these vehicles to be attached directly to Redmine issues for better service tracking.
-* **QuickBooks VIN and Mileage fields (redmine_qbo 2026.11.0+):** redmine_qbo shows every QuickBooks text custom field on its estimate/invoice editor; this plugin fills the one named like **VIN** and, if there is one, the one named like **Mileage** or **Odometer**. VINs are shown in capitals.
-* **Invoices (redmine_qbo 2026.11.0+):** importing a work order's time or estimate fills the invoice's VIN box with its vehicle's VIN and the mileage box with the highest value of the work orders' **Mileage** issue custom field (Redmine's own custom field named "Mileage"), and an invoice whose work orders are for more than one vehicle isn't saved (one vehicle per invoice).
-* **Estimates (redmine_qbo 2026.11.0+):** the VIN box suggests the customer's vehicles, an invoice made from an estimate without a VIN gets its work orders' vehicle, and the Create issues from estimate page has a **Vehicle** for all the issues: preselected with the appointment's vehicle, or else the customer's vehicle whose VIN is on the estimate; when none matches it says so, so the team can pick one before creating the issues.
+* **QuickBooks VIN and Mileage fields (redmine_qbo 2026.11.2+):** redmine_qbo shows every QuickBooks text custom field on its estimate/invoice editor; this plugin fills the one named like **VIN** and, if there is one, the one named like **Mileage** or **Odometer**. VINs are shown in capitals.
+* **Invoices (redmine_qbo 2026.11.2+):** importing a work order's time or estimate fills the invoice's VIN box with its vehicle's VIN and the mileage box with the highest value of the work orders' **Mileage** issue custom field (Redmine's own custom field named "Mileage"), and an invoice whose work orders are for more than one vehicle isn't saved (one vehicle per invoice).
+* **Estimates (redmine_qbo 2026.11.2+):** the VIN box suggests the customer's vehicles, an invoice made from an estimate without a VIN gets its work orders' vehicle, and the Create issues from estimate page has a **Vehicle** for all the issues: preselected with the appointment's vehicle, or else the customer's vehicle whose VIN is on the estimate; when none matches it says so, so the team can pick one before creating the issues.
 * **Customer page:** ticking a vehicle adds it to the New issue link.
 * **Appointments (redmine_qbo_calendar):** an appointment added from an estimate gets the customer's vehicle with the estimate's VIN.
 
