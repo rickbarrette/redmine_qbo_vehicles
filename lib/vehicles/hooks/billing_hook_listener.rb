@@ -34,6 +34,22 @@ module Vehicles
         customer.vehicles.select { |v| v.vin.present? }.map { |v| { vin: v.vin, name: v.to_s } }
       end
 
+      # The VIN a new estimate or invoice starts with: the work orders' vehicle when they share one, else the
+      # customer's only vehicle with a VIN. Nothing when it's ambiguous (work orders for several vehicles, or a
+      # customer with several and no work orders); the VIN box's suggestions still list them.
+      def qbo_billing_default_vin(context = {})
+        vins = Array(context[:issues]).filter_map { |issue| issue.respond_to?(:vehicle) ? issue.vehicle&.vin.presence : nil }
+                                      .map(&:upcase).uniq
+        return vins.first if vins.size == 1
+        return nil if vins.size > 1
+
+        customer = context[:customer]
+        return nil unless customer.respond_to?(:vehicles)
+
+        with_vin = customer.vehicles.select { |v| v.vin.present? }
+        with_vin.first.vin if with_vin.size == 1
+      end
+
       # Issues created from an estimate get a vehicle: the one passed in (e.g. redmine_qbo_calendar's
       # appointment vehicle), or the customer's vehicle whose VIN is on the estimate
       def qbo_billing_build_issue(context = {})
