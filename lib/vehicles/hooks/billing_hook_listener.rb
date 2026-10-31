@@ -11,7 +11,7 @@
 module Vehicles
   module Hooks
 
-    # Hooks for redmine_qbo_billing's estimates and invoices
+    # Hooks for redmine_qbo's estimates and invoices
     class BillingHookListener < Redmine::Hook::Listener
 
       # Each work order's VIN, so the invoice's VIN box is filled when its time or estimates are imported
