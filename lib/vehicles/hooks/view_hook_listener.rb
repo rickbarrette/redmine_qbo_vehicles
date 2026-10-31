@@ -20,6 +20,15 @@ module Vehicles
         ])
       end
 
+      # redmine_qbo's Create issues from estimate page: a Vehicle for all the issues, preselected from the
+      # estimate's VIN
+      def view_qbo_estimate_issues_form(context = {})
+        return '' unless context[:estimate]
+
+        context[:hook_caller].render(partial: 'vehicles/estimate_issues_vehicle',
+                                     locals: { estimate: context[:estimate], defaults: context[:defaults] })
+      end
+
     end
   end
 end

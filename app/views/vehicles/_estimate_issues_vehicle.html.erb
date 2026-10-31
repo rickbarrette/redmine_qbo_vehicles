@@ -1,0 +1,25 @@
+<%#
+  Vehicle for the issues created from an estimate (redmine_qbo's Create issues page). Preselected: the vehicle
+  already picked (or passed in, e.g. an appointment's), else the customer's vehicle matching the estimate's VIN.
+  Posted as issue_plugin_fields[vehicle_id]; see Vehicles::Hooks::BillingHookListener#qbo_billing_build_issue.
+%>
+<%
+  estimate_vin = Vehicles::EstimateVehicle.vin(estimate)
+  matched = Vehicles::EstimateVehicle.match(estimate, estimate_vin)
+  vehicles = Vehicles::EstimateVehicle.vehicles(estimate)
+  defaults = (defaults || {}).to_h.symbolize_keys
+  selected = defaults.key?(:vehicle_id) ? defaults[:vehicle_id].to_s : matched&.id.to_s
+%>
+<p class="estimate-issue-field estimate-issue-vehicle">
+  <label for="estimate_issue_vehicle_id"><%= l(:field_vehicle) %></label>
+  <%= select_tag 'issue_plugin_fields[vehicle_id]',
+                 options_for_select(vehicles.map { |v| [v.vin.present? ? "#{v} (#{v.vin})" : v.to_s, v.id.to_s] }, selected),
+                 include_blank: true, id: 'estimate_issue_vehicle_id' %>
+  <% if matched && selected == matched.id.to_s %>
+    <em class="info"><%= l(:text_estimate_vehicle_matched, vin: estimate_vin) %></em>
+  <% elsif estimate_vin && !matched %>
+    <em class="info estimate-vehicle-unmatched" style="color: #b06d00;"><%= l(:text_estimate_vehicle_unmatched, vin: estimate_vin) %></em>
+  <% elsif !estimate_vin %>
+    <em class="info"><%= l(:text_estimate_vehicle_no_vin) %></em>
+  <% end %>
+</p>

@@ -50,13 +50,15 @@ module Vehicles
         with_vin.first.vin if with_vin.size == 1
       end
 
-      # Issues created from an estimate get a vehicle: the one passed in (e.g. redmine_qbo_calendar's
-      # appointment vehicle), or the customer's vehicle whose VIN is on the estimate
+      # Issues created from an estimate get a vehicle: the one picked on the Create issues page (or passed in,
+      # e.g. redmine_qbo_calendar's appointment vehicle; blank means none), else the customer's vehicle whose
+      # VIN is on the estimate
       def qbo_billing_build_issue(context = {})
         issue = context[:issue]
         return unless issue.respond_to?(:vehicle_id=)
 
-        vehicle_id = context.dig(:defaults, :vehicle_id).presence || vehicle_id_from_vin(context[:estimate])
+        defaults = (context[:defaults] || {}).to_h.symbolize_keys
+        vehicle_id = defaults.key?(:vehicle_id) ? defaults[:vehicle_id].presence : Vehicles::EstimateVehicle.match(context[:estimate])&.id
         issue.vehicle_id = vehicle_id if vehicle_id
       end
 
@@ -76,20 +78,6 @@ module Vehicles
       end
 
       private
-
-      # The customer's vehicle whose VIN is on the estimate's QuickBooks VIN field, or nil
-      def vehicle_id_from_vin(estimate)
-        customer = estimate&.customer
-        return nil unless customer.respond_to?(:vehicles)
-
-        company = RedmineQboBilling::Company
-        vin = RedmineQboBilling::EstimateWriter.custom_value(estimate.details, company.vin_field, company::VIN_NAME).to_s.strip
-        return nil if vin.empty?
-
-        customer.vehicles.detect { |v| v.vin.to_s.casecmp?(vin) }&.id
-      rescue StandardError
-        nil
-      end
 
       # { issue_id => mileage } from the issue custom field named "Mileage"; empty without that field
       def mileage_by_issue(issues)
