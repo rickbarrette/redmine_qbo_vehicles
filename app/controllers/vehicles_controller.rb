@@ -47,7 +47,11 @@ class VehiclesController < ApplicationController
 
     if @vehicle.save
       flash[:notice] = t :notice_vehicle_created
-      redirect_to @vehicle
+      # For whatever the vehicle was added from (e.g. an appointment, which then gets this vehicle: see
+      # Vehicles::Hooks::AppointmentVehicleHookListener). Context: params, vehicle
+      call_hook(:controller_vehicles_new_after_save, params: params, vehicle: @vehicle)
+      # Back to where the vehicle was added from (back_url), else the vehicle
+      redirect_back_or_default @vehicle
     else
       # A duplicate VIN: point to the vehicle that already has it
       @existing_vehicle = Vehicle.find_by(vin: @vehicle.vin) if @vehicle.errors.of_kind?(:vin, :taken)

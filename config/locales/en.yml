@@ -43,6 +43,7 @@ en:
   no_customer: "Customer no longer exists"
   notice_decoding_vin: "Decoding VIN… this page will update automatically."
   notice_vehicle_created: "Vehicle was successfully created."
+  notice_vehicle_added_to_appointment: "%{vehicle} was added to the customer and to this appointment."
   notice_vehicle_deleted: "Vehicle was successfully deleted."
   notice_vehicle_updated: "Vehicle was successfully updated."
 

@@ -1,11 +1,14 @@
+<%# On an appointment without a vehicle: add one for the customer; once created, it's set on this appointment
+    and you're brought back here (Vehicles::Hooks::AppointmentVehicleHookListener) %>
 <% if User.current.allowed_to?(:add_vehicles, nil, global: true) %>
   <% if appointment.customer.present? %>
     <% unless appointment.vehicle.present? %>
       <p>
-      <%= link_to new_vehicle_path(customer_id: appointment.customer_id), class: 'icon icon-add' do %>
+      <%= link_to new_vehicle_path(customer_id: appointment.customer_id, appointment_id: appointment.id,
+                                   back_url: customer_appointment_path(appointment)), class: 'icon icon-add' do %>
         <%= l(:label_add_vehicle) %>
       <% end %>
-      </p>  
+      </p>
     <% end %>
   <% end %>
 <% end %>
