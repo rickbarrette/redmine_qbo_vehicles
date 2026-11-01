@@ -1,4 +1,4 @@
-<h2><%= link_to l(:field_vehicles), vehicles_path %> &#187; <%= link_to @vehicle.to_s, vehicle_path(@vehicle) %></h2>
+<%= render partial: 'vehicles/trail', locals: { vehicle: @vehicle, tail: link_to(@vehicle.to_s, vehicle_path(@vehicle)) } %>
 
 <%= labelled_form_for @vehicle do |f| %>
   <%= render partial: 'vehicles/form', locals: { f: f } %>

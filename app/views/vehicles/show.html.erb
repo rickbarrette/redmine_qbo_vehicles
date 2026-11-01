@@ -1,4 +1,9 @@
-<div class="contextual">
+<% html_title @vehicle.to_s %>
+
+<%= render partial: 'vehicles/trail', locals: { vehicle: @vehicle, tail: @vehicle.to_s } %>
+
+<%# Under the title, like the customer page (redmine_qbo's qbo-under-title) %>
+<div class="contextual qbo-under-title">
   <% if User.current.allowed_to?(:edit_vehicles, nil, global: true) %>
     <%= link_to sprite_icon('edit', l(:button_edit)), edit_vehicle_path(@vehicle),
                 class: 'icon icon-edit', accesskey: accesskey(:edit) %>
@@ -8,8 +13,6 @@
     <%= delete_link vehicle_path(@vehicle) %>
   <% end %>
 </div>
-
-<h2><%=t(:field_vehicle)%> #<%=@vehicle.id%></h2>
 
 <% unless @vehicle.vin_decoded? %>
   <div id="vin-status" class="flash <%= @vehicle.error ? "error" : "notice" %>">

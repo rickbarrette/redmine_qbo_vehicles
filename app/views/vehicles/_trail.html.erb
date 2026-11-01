@@ -1,0 +1,9 @@
+<%# Page title: Customers » the vehicle's customer » tail (Vehicles » tail for a vehicle without a customer) %>
+<h2>
+  <% if vehicle.customer %>
+    <%= link_to l(:label_customers), customers_path %> &#187; <%= link_to vehicle.customer.to_s, customer_path(vehicle.customer) %>
+  <% else %>
+    <%= link_to l(:field_vehicles), vehicles_path %>
+  <% end %>
+  &#187; <%= tail %>
+</h2>
