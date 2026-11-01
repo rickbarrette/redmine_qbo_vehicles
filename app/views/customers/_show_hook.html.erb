@@ -1,7 +1,12 @@
 <% if User.current.allowed_to?(:view_vehicles, nil, global: true) %>
 <h4><%=t(:field_vehicles)%>:</h4>
 <%# Own page parameter so this list doesn't page together with the other lists on the customer page %>
-<%= render partial: 'vehicles/list', locals: { vehicles: customer.vehicles.paginate(page: params[:vehicles_page]), show_customer: false, show_checkbox: true, page_param: :vehicles_page } %>
+<% vehicle_scope = customer.vehicles.order(:year, :make, :model, :id) %>
+<% vehicle_count = vehicle_scope.count %>
+<% vehicle_pages = Redmine::Pagination::Paginator.new(vehicle_count, Setting.per_page_options_array.first || 25, params[:vehicles_page], :vehicles_page) %>
+<%= render partial: 'vehicles/list', locals: { vehicles: vehicle_scope.limit(vehicle_pages.per_page).offset(vehicle_pages.offset).to_a,
+                                               pages: vehicle_pages, count: vehicle_count, per_page_links: false,
+                                               show_customer: false, show_checkbox: true } %>
 <div style="float: right;">
     <% if User.current.allowed_to?(:add_vehicles, nil, global: true) %>
         <%= button_to t(:button_new_vehicle), new_customer_vehicle_path(customer), method: :get %>

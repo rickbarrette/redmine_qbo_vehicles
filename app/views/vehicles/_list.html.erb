@@ -40,11 +40,12 @@
     </div>
   <% end %>
 
-  <div class="actions">
-    <%= will_paginate vehicles, param_name: (local_assigns[:page_param] || :page) %>
-  </div>
+  <%# pages: a Redmine::Pagination::Paginator for the list (count: how many in all); per_page_links: false to leave out "Per page" %>
+  <% if local_assigns[:pages] %>
+    <span class="pagination"><%= pagination_links_full pages, count, per_page_links: local_assigns[:per_page_links] %></span>
+  <% end %>
 
-<%=t(:label_matching)%> <%= vehicles.respond_to?(:total_entries) ? vehicles.total_entries : vehicles.size %> <%=t(:field_vehicles) %>
+<%=t(:label_matching)%> <%= local_assigns[:count] || vehicles.size %> <%=t(:field_vehicles) %>
 
 <% else %>
   <p><%=t(:label_no_vehicles)%> <%= params[:search] %>.</p>

@@ -1,4 +1,4 @@
 <h2><%=t(:label_customer_vehicles)%> <span style="float:right"> <%= render partial: 'vehicles/search' %> </span> </h2> 
 <br/> 
 
-<%= render partial: 'vehicles/list', locals: {vehicles: @vehicles, show_customer: true, show_checkbox: false} %>
+<%= render partial: 'vehicles/list', locals: {vehicles: @vehicles, pages: @vehicle_pages, count: @vehicle_count, show_customer: true, show_checkbox: false} %>

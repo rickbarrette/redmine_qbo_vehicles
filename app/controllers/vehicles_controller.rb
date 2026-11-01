@@ -27,13 +27,13 @@ class VehiclesController < ApplicationController
       @customer = Customer.find_by(id: params[:customer_id])
       return render_404 unless @customer
 
-      @vehicles = @customer.vehicles.order(:year, :make, :model).paginate(page: params[:page])
+      paginate_vehicles(@customer.vehicles.order(:year, :make, :model, :id))
       return
     end
 
     if params[:search].present?
-      @vehicles = Vehicle.search_all(params[:search]).paginate(page: params[:page])
-      redirect_to @vehicles.first if @vehicles.total_entries == 1
+      paginate_vehicles(Vehicle.search_all(params[:search]).order(:id))
+      redirect_to @vehicles.first if @vehicle_count == 1
     end
   end
 
@@ -113,6 +113,13 @@ class VehiclesController < ApplicationController
     @vehicle = Vehicle.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render_404
+  end
+
+  # Redmine's paging: @vehicle_count, @vehicle_pages and this page's @vehicles
+  def paginate_vehicles(scope)
+    @vehicle_count = scope.count
+    @vehicle_pages = Paginator.new @vehicle_count, per_page_option, params['page']
+    @vehicles = scope.limit(@vehicle_pages.per_page).offset(@vehicle_pages.offset).to_a
   end
 
 end
