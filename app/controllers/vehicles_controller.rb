@@ -10,6 +10,9 @@
 
 class VehiclesController < ApplicationController
 
+  helper :sort
+  include SortHelper
+
   # Checks the vehicle permissions declared in init.rb (also requires login)
   before_action :authorize_global
   before_action :find_vehicle, only: [:show, :status, :edit, :update, :destroy]
@@ -21,20 +24,28 @@ class VehiclesController < ApplicationController
     params.require(:vehicle).permit(:year, :make, :model, :customer_id, :notes, :vin)
   end
 
-  # Vehicles for one customer, or search results
+  # Every vehicle (or one customer's), sortable and paged like Redmine's lists; a search narrows it to the
+  # vehicles matching every word (a single match opens that vehicle)
   def index
     if params[:customer_id].present?
       @customer = Customer.find_by(id: params[:customer_id])
       return render_404 unless @customer
-
-      paginate_vehicles(@customer.vehicles.order(:year, :make, :model, :id))
-      return
     end
 
-    if params[:search].present?
-      paginate_vehicles(Vehicle.search_all(params[:search]).order(:id))
-      redirect_to @vehicles.first if @vehicle_count == 1
-    end
+    sort_init 'vehicle', 'asc'
+    sort_update 'vehicle' => %w[year make model].map { |c| "#{Vehicle.table_name}.#{c}" },
+                'vin' => "#{Vehicle.table_name}.vin",
+                'customer' => "#{Customer.table_name}.name",
+                'updated' => "#{Vehicle.table_name}.updated_at"
+
+    @search = params[:search].to_s.strip
+    scope = @customer ? @customer.vehicles : Vehicle.all
+    # Searched before joining customers, whose name column would make Vehicle.search's ambiguous
+    scope = scope.search_all(@search) if @search.present?
+    paginate_vehicles(scope.left_joins(:customer).preload(:customer).reorder(sort_clause).order(:id))
+    return redirect_to(@vehicles.first) if @search.present? && @vehicle_count == 1
+
+    @last_services = Vehicle.last_service_infos(@vehicles.map(&:id))
   end
 
   # Form for a new vehicle, pre-filled with the customer when coming from a customer or appointment

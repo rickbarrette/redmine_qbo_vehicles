@@ -48,5 +48,5 @@
 <%=t(:label_matching)%> <%= local_assigns[:count] || vehicles.size %> <%=t(:field_vehicles) %>
 
 <% else %>
-  <p><%=t(:label_no_vehicles)%> <%= params[:search] %>.</p>
+  <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

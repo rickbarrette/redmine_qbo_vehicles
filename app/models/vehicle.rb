@@ -51,7 +51,7 @@ class Vehicle < ApplicationRecord
       .joins(:custom_values)
       .where(custom_values: { custom_field_id: field.id })
       .where.not(custom_values: { value: ['', nil] })
-      .order(created_on: :desc)
+      .order(created_on: :desc, id: :desc)
       .first
   end
 
@@ -65,11 +65,25 @@ class Vehicle < ApplicationRecord
               .joins(:custom_values)
               .where(custom_values: { custom_field_id: field.id })
               .where.not(custom_values: { value: ['', nil] })
-              .order(created_on: :desc)
+              .order(created_on: :desc, id: :desc)
               .pick(:created_on, 'custom_values.value')
           end
 
     @last_service_info = row && { date: row[0]&.to_date, mileage: row[1].presence }
+  end
+
+  # last_service_info for many vehicles in one query (a list's Last serviced column):
+  # { vehicle id => { date:, mileage: } }, leaving out vehicles without a mileage recorded
+  def self.last_service_infos(ids)
+    field = mileage_custom_field
+    return {} unless field && ids.any?
+
+    Issue.joins(:custom_values)
+         .where(vehicle_id: ids, custom_values: { custom_field_id: field.id })
+         .where.not(custom_values: { value: ['', nil] })
+         .order(created_on: :desc, id: :desc)
+         .pluck(:vehicle_id, :created_on, 'custom_values.value')
+         .each_with_object({}) { |(id, on, value), infos| infos[id] ||= { date: on&.to_date, mileage: value.presence } }
   end
 
   def last_service_date

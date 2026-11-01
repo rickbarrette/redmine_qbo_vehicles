@@ -1,4 +1,72 @@
-<h2><%=t(:label_customer_vehicles)%> <span style="float:right"> <%= render partial: 'vehicles/search' %> </span> </h2> 
-<br/> 
+<% html_title(*[@customer&.to_s, l(:field_vehicles)].compact) %>
 
-<%= render partial: 'vehicles/list', locals: {vehicles: @vehicles, pages: @vehicle_pages, count: @vehicle_count, show_customer: true, show_checkbox: false} %>
+<div class="contextual">
+  <% if @customer && User.current.allowed_to?(:add_vehicles, nil, global: true) %>
+    <%= link_to sprite_icon('add', l(:button_new_vehicle)), new_customer_vehicle_path(@customer), class: 'icon icon-add' %>
+  <% end %>
+</div>
+
+<h2>
+  <% if @customer %>
+    <%= link_to l(:label_customers), customers_path %> &#187; <%= link_to @customer.to_s, customer_path(@customer) %> &#187;
+  <% end %>
+  <%= l(:field_vehicles) %>
+</h2>
+
+<%= form_tag(@customer ? customer_vehicles_path(@customer) : vehicles_path, method: :get, id: 'vehicles-search-form') do %>
+  <p class="vehicles-search">
+    <%= text_field_tag :search, @search, size: 40, placeholder: t(:label_search_vehicles), autocomplete: 'off' %>
+    <%= submit_tag l(:label_search), name: nil %>
+    <% if @search.present? %>
+      <%= link_to sprite_icon('reload', l(:button_clear)), @customer ? customer_vehicles_path(@customer) : vehicles_path,
+                  class: 'icon icon-reload' %>
+    <% end %>
+  </p>
+<% end %>
+
+<% if @vehicles.empty? %>
+  <p class="nodata"><%= @search.present? ? l(:label_no_vehicles, search: @search) : l(:label_no_data) %></p>
+<% else %>
+  <div class="autoscroll">
+    <table class="list vehicles odd-even">
+      <thead>
+        <tr>
+          <%= sort_header_tag('vehicle', caption: l(:field_vehicle)) %>
+          <%= sort_header_tag('vin', caption: l(:field_vin)) %>
+          <% unless @customer %>
+            <%= sort_header_tag('customer', caption: l(:field_customer)) %>
+          <% end %>
+          <th><%= l(:label_last_serviced) %></th>
+          <%= sort_header_tag('updated', caption: l(:field_updated_on), default_order: 'desc') %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @vehicles.each do |vehicle| %>
+          <% service = @last_services[vehicle.id] %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <td class="name"><%= link_to vehicle.to_s, vehicle_path(vehicle) %></td>
+            <td class="vin"><%= render partial: 'vehicles/vin', locals: { vin: vehicle.vin } %></td>
+            <% unless @customer %>
+              <td class="customer"><%= link_to vehicle.customer.to_s, customer_path(vehicle.customer) if vehicle.customer %></td>
+            <% end %>
+            <td class="last-service">
+              <% if service %>
+                <%= format_date(service[:date]) %>
+                <% if service[:mileage] %>&middot; <%= number_with_delimiter(service[:mileage]) %> <%= l(:label_miles) %><% end %>
+              <% end %>
+            </td>
+            <td class="updated_on"><%= format_time(vehicle.updated_at) if vehicle.updated_at %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <span class="pagination"><%= pagination_links_full @vehicle_pages, @vehicle_count %></span>
+<% end %>
+
+<style>
+  table.vehicles td.name, table.vehicles td.customer { text-align: left; }
+  table.vehicles td.vin, table.vehicles td.last-service, table.vehicles td.updated_on { white-space: nowrap; }
+  table.vehicles td.vin .vehicle-vin { display: inline-block; }
+  .vehicles-search input { vertical-align: middle; }
+</style>
