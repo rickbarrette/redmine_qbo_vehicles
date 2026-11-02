@@ -6,4 +6,9 @@
                    include_blank: true, id: 'settings_mileage_custom_field_id' %>
     <em class="info"><%= l(:text_mileage_custom_field_info) %></em>
   </p>
+  <p>
+    <label for="settings_subject_placeholder"><%= l(:label_subject_vehicle_placeholder) %></label>
+    <%= text_field_tag 'settings[subject_placeholder]', Vehicle.subject_placeholder, id: 'settings_subject_placeholder', size: 20 %>
+    <em class="info"><%= l(:text_subject_vehicle_placeholder_info) %></em>
+  </p>
 </div>

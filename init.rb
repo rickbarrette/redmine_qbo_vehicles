@@ -27,7 +27,8 @@ Redmine::Plugin.register :redmine_qbo_vehicles do
   end
   
   # Which issue custom field holds the mileage shown as "Last serviced" (blank: a field named "Mileage")
-  settings default: { 'mileage_custom_field_id' => '' }, partial: 'settings/vehicles_settings'
+  # Text in issue subjects replaced by the issue's vehicle (blank: off)
+  settings default: { 'mileage_custom_field_id' => '', 'subject_placeholder' => '<VEHICLE>' }, partial: 'settings/vehicles_settings'
 
   # Add safe attributes for core models
   Issue.safe_attributes :vehicle_id

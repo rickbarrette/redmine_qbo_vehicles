@@ -35,6 +35,18 @@ class Vehicle < ApplicationRecord
     issues.includes(:invoices).flat_map(&:invoices).uniq.compact
   end
 
+  # Text in an issue's subject replaced by its vehicle (e.g. a template's "Frame Evaluation // <VEHICLE>"), or nil
+  # when turned off in the plugin settings. Settings saved before this option existed get the default.
+  DEFAULT_SUBJECT_PLACEHOLDER = '<VEHICLE>'
+
+  def self.subject_placeholder
+    settings = Setting.plugin_redmine_qbo_vehicles || {}
+    key = ['subject_placeholder', :subject_placeholder].detect { |k| settings.key?(k) }
+    return DEFAULT_SUBJECT_PLACEHOLDER unless key
+
+    settings[key].to_s.strip.presence
+  end
+
   # The issue custom field holding mileage: the one chosen in the plugin settings, else one named "Mileage"
   def self.mileage_custom_field
     settings = Setting.plugin_redmine_qbo_vehicles || {}
