@@ -12,6 +12,7 @@ module RedmineQboVehicles
   def self.setup
     Issue.prepend Vehicles::Patches::IssuePatch
     Customer.prepend Vehicles::Patches::CustomerPatch
+    IssuesHelper.prepend Vehicles::Patches::IssuesHelperPatch
 
     Vehicles::Hooks::CustomerShowHookListener
     Vehicles::Hooks::IssuesFormHookListener
