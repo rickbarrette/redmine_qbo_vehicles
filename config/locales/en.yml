@@ -13,17 +13,11 @@
 
 en:
   alert_no_customer: "Customer no longer exists, check for merged customers or deleted customers in QuickBooks Online."
-  alert_vehicle_not_created: "Vehicle could not be created."
-  alert_vehicle_not_deleted: "Vehicle could not be deleted."
-  alert_vehicle_not_found: "Vehicle not found."
-  alert_vehicle_not_updated: "Vehicle could not be updated."
   button_new_vehicle: "New Vehicle"
   field_vehicle: "Vehicle"
   field_vehicles: "Vehicles"
   field_vin: "VIN"
   label_add_vehicle: "Add Vehicle"
-  label_customer_vehicles: "Customer Vehicles"
-  label_edit: "Edit"
   label_edit_customer_vehicle: "Edit Customer Vehicle"
   label_last_service: "Last Serviced:"
   label_make: "Make"
@@ -33,7 +27,6 @@ en:
   label_no_vehicles: "No vehicles match \"%{search}\"."
   label_last_serviced: "Last serviced"
   label_search_vehicles: "Search Vehicles"
-  label_unknown: "Unknown"
   label_vehicle: "Vehicle"
   text_invoice_many_vehicles: "These work orders are for more than one vehicle:"
   text_no_vin_field: "QuickBooks isn't sharing a text custom field named VIN, so VINs can't be filled in."
@@ -50,13 +43,11 @@ en:
 
   # Vehicle labels previously only defined in redmine_qbo
   field_customer: "Customer"
-  label_delete: "Delete"
   label_door: "Door"
   label_estimates: "Estimates"
   label_invoices: "Invoices"
   label_matching: "Matching"
   label_trim: "Trim"
-  warn_ru_sure: "Are you sure?"
 
   alert_vehicle_has_issues: "This vehicle has issues, so it can't be deleted (that would lose its service history). If it was sold, change its customer instead."
   error_one_vehicle_per_invoice: "Only one vehicle per invoice: these work orders are for %{vehicles}. Make a separate invoice for each vehicle."

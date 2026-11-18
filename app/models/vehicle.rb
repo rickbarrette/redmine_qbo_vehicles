@@ -54,19 +54,6 @@ class Vehicle < ApplicationRecord
     (IssueCustomField.find_by(id: chosen) if chosen.positive?) || IssueCustomField.find_by(name: 'Mileage')
   end
 
-  # The most recent issue for this vehicle with a mileage recorded
-  def last_service
-    field = self.class.mileage_custom_field
-    return nil unless field
-
-    issues
-      .joins(:custom_values)
-      .where(custom_values: { custom_field_id: field.id })
-      .where.not(custom_values: { value: ['', nil] })
-      .order(created_on: :desc, id: :desc)
-      .first
-  end
-
   # { date:, mileage: } from the most recent issue with a mileage, or nil. One query, cached per vehicle.
   def last_service_info
     return @last_service_info if defined?(@last_service_info)

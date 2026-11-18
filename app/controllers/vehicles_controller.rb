@@ -20,10 +20,6 @@ class VehiclesController < ApplicationController
   # How long to wait before the status check may queue another VIN decode for the same vehicle
   DECODE_REQUEST_THROTTLE = 5.minutes
 
-  def allowed_params
-    params.require(:vehicle).permit(:year, :make, :model, :customer_id, :notes, :vin)
-  end
-
   # Every vehicle (or one customer's), sortable and paged like Redmine's lists; a search narrows it to the
   # vehicles matching every word (a single match opens that vehicle)
   def index
@@ -119,6 +115,10 @@ class VehiclesController < ApplicationController
   end
 
   private
+
+  def allowed_params
+    params.require(:vehicle).permit(:year, :make, :model, :customer_id, :notes, :vin)
+  end
 
   def find_vehicle
     @vehicle = Vehicle.find(params[:id])
