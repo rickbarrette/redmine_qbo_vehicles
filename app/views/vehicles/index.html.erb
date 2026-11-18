@@ -15,8 +15,10 @@
 
 <%= form_tag(@customer ? customer_vehicles_path(@customer) : vehicles_path, method: :get, id: 'vehicles-search-form') do %>
   <p class="vehicles-search">
-    <%= text_field_tag :search, @search, size: 40, placeholder: t(:label_search_vehicles), autocomplete: 'off' %>
+    <%= text_field_tag :search, @search, size: 40, placeholder: t(:label_search_vehicles), autocomplete: 'off',
+                                        id: 'vehicles-search' %>
     <%= submit_tag l(:label_search), name: nil %>
+    <%= render partial: 'vehicles/vin_scan_button', locals: { target: '#vehicles-search', submit: true } %>
     <% if @search.present? %>
       <%= link_to sprite_icon('reload', l(:button_clear)), @customer ? customer_vehicles_path(@customer) : vehicles_path,
                   class: 'icon icon-reload' %>

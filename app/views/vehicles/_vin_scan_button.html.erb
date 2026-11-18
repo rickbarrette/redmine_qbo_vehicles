@@ -1,0 +1,11 @@
+<%# Scan VIN with the phone's camera (vin_scanner.js); hidden until the script finds a camera.
+    Locals: target (CSS selector of the field to fill), submit (also submit its form) %>
+<% content_for :header_tags do %>
+  <%= javascript_include_tag 'vin_scanner', plugin: :redmine_qbo_vehicles %>
+<% end %>
+<%= tag.button sprite_icon('photo', l(:button_scan_vin)), type: 'button', class: 'vin-scan-button', hidden: true,
+               data: { vin_scan: '', vin_target: target, vin_submit: (local_assigns[:submit] ? '' : nil),
+                       zxing_url: asset_path('plugin_assets/redmine_qbo_vehicles/zxing.min.js'),
+                       labels: { title: l(:button_scan_vin), hint: l(:text_scan_vin_hint), cancel: l(:button_cancel),
+                                 torch: l(:button_scan_vin_light), denied: l(:text_scan_vin_denied),
+                                 noCamera: l(:text_scan_vin_no_camera), failed: l(:text_scan_vin_failed) }.to_json } %>

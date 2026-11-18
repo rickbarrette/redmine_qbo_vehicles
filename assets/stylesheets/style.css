@@ -35,3 +35,69 @@
 .vehicle-list .vehicle-detail {
   display: block;
 }
+
+/* Scan VIN (vin_scanner.js): the button by the VIN field and vehicle search, and the full-screen camera view */
+.vin-scan-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: 6px;
+  vertical-align: middle;
+}
+html.vin-scanner-open,
+html.vin-scanner-open body { overflow: hidden; }
+.vin-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.vin-scanner-video {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+/* Where to put the barcode: a wide box in the middle, the rest dimmed */
+.vin-scanner-frame {
+  position: absolute;
+  inset-inline: 6%;
+  inset-block-start: 38%;
+  block-size: 24%;
+  border: 3px solid rgba(255, 255, 255, .9);
+  border-radius: 10px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45);
+  pointer-events: none;
+}
+.vin-scanner-hint {
+  position: relative;
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  text-align: center;
+  font-size: 15px;
+}
+.vin-scanner-hint.vin-scanner-error { background: #c92a2a; }
+.vin-scanner-bar {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+}
+.vin-scanner-bar button {
+  flex: 1;
+  min-block-size: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .92);
+  color: #212529;
+  font-size: 16px;
+  font-weight: bold;
+}
+.vin-scanner-bar .vin-scanner-torch.vin-scanner-on { background: #ffd43b; }

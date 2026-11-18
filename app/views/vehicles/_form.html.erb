@@ -15,7 +15,10 @@
                      data: { autocomplete_url: '/customers/autocomplete' } %>
     <%= f.hidden_field :customer_id, id: 'customer_id' %>
   </p>
-  <p><%= f.text_field :vin, label: :field_vin, required: true, size: 20, maxlength: 17, autofocus: true %></p>
+  <p>
+    <%= f.text_field :vin, label: :field_vin, required: true, size: 20, maxlength: 17, autofocus: true %>
+    <%= render partial: 'vehicles/vin_scan_button', locals: { target: '#vehicle_vin' } %>
+  </p>
   <p><%= f.number_field :year, label: :label_year, min: 1900, max: Date.today.year + 2, autocomplete: 'off' %></p>
   <p><%= f.text_field :make, label: :label_make, size: 30, autocomplete: 'off' %></p>
   <p><%= f.text_field :model, label: :label_model, size: 30, autocomplete: 'off' %></p>

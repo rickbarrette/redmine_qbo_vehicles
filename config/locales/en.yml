@@ -63,3 +63,9 @@ en:
   text_click_to_copy: "Click to copy"
   text_copied: "Copied!"
   text_copy_failed: "Couldn't copy"
+  button_scan_vin: Scan VIN
+  button_scan_vin_light: Light
+  text_scan_vin_hint: "Point at the VIN barcode: on the driver's door jamb or the windshield sticker."
+  text_scan_vin_denied: "The camera is blocked. Allow camera access for this site in the browser's settings, then try again."
+  text_scan_vin_no_camera: No camera was found.
+  text_scan_vin_failed: "The camera couldn't be started."
