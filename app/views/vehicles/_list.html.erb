@@ -1,44 +1,30 @@
 <% if vehicles.present? %>
 
+  <%# A vehicle: the checkbox and its name, then its VIN and when it was last serviced, each on its own line (style.css) %>
+  <div class="vehicle-list">
   <% vehicles.each do |vehicle| %>
-    <div class="row">
-
-      <div class="container">
-
+    <div class="vehicle-row">
+      <span class="vehicle-check">
         <% if show_checkbox %>
-          <%= check_box_tag "vehicle_ids[]", vehicle.id, false,  onchange: "updateLink()", data: { url: vehicle_path(vehicle).html_safe, text: vehicle.to_s, new_issue_param: 'issue[vehicle_id]' }, class: "vehicle-checkbox appointment checkbox" %>
-        <% else %>
-          <div class='checkbox'>
-          </div>
+          <%# Ticking a vehicle adds it to the customer page's New issue and Add appointment links (redmine_qbo's customers/_new_issue_link_script) %>
+          <%= check_box_tag "vehicle_ids[]", vehicle.id, false, data: { new_issue_param: 'issue[vehicle_id]', appointment_param: 'vehicle_id' }, class: "vehicle-checkbox" %>
         <% end %>
-
-        <div class='label-main'>
-          <%= link_to vehicle.to_s, vehicle_path(vehicle) %>
-        </div>
-
-        <div class="label-sub">
+      </span>
+      <div class="vehicle-text">
+        <div class="vehicle-name"><%= link_to vehicle.to_s, vehicle_path(vehicle) %></div>
+        <div class="vehicle-details">
           <%= render partial: 'vehicles/vin', locals: { vin: vehicle.vin } %>
           <% if show_customer %>
-            <%= vehicle.customer %>
+            <span class="vehicle-detail"><%= vehicle.customer %></span>
           <% end %>
-
-           <% 
-            mileage = vehicle.last_service_mileage
-          %>
-
-          <% if mileage %>
-            <br/>
-            <b><%= t(:label_last_service) %></b> <%= vehicle.last_service_date %>
-            at <%= mileage %> <%= t(:label_miles) %>
+          <% if (mileage = vehicle.last_service_mileage) %>
+            <span class="vehicle-detail"><b><%= t(:label_last_service) %></b> <%= vehicle.last_service_date %> at <%= mileage %> <%= t(:label_miles) %></span>
           <% end %>
-
         </div>
-        <br/>
-      
       </div>
-
     </div>
   <% end %>
+  </div>
 
   <%# pages: a Redmine::Pagination::Paginator for the list (count: how many in all); per_page_links: false to leave out "Per page" %>
   <% if local_assigns[:pages] %>

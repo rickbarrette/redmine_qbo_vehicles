@@ -1,23 +1,37 @@
-.container {
-  display: grid;
-  /* Column 1 for checkbox, Column 2 for text */
-  grid-template-columns: auto 1fr; 
-  /* Row 1 for 'Vehicle', Row 2 for 'VIN' */
-  grid-template-rows: auto auto;
-  align-items: center;
-  gap: 0 10px; /* Adjust spacing between checkbox and text */
+/* The vehicle list (vehicles/_list, e.g. on the customer page): a checkbox and the vehicle's name, then its VIN and
+   when it was last serviced, each on its own line, close together */
+.vehicle-list .vehicle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 6px;
 }
 
-.checkbox {
-  /* This makes the checkbox take up both rows */
-  grid-row: span 2;
+.vehicle-list .vehicle-check {
+  flex: 0 0 auto;
+  min-width: 13px;
 }
 
-.label-main {
+.vehicle-list .vehicle-check input {
+  margin: 2px 0 0;
+}
+
+.vehicle-list .vehicle-text {
+  min-width: 0;
+}
+
+.vehicle-list .vehicle-name {
   font-weight: bold;
+  line-height: 1.3;
 }
 
-.label-sub {
+.vehicle-list .vehicle-details {
   font-size: 0.85em;
   color: #666;
+  line-height: 1.35;
+}
+
+.vehicle-list .vehicle-details .vehicle-vin,
+.vehicle-list .vehicle-detail {
+  display: block;
 }
