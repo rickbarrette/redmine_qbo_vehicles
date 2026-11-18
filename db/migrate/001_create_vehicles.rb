@@ -25,7 +25,7 @@ class CreateVehicles < ActiveRecord::Migration[5.1]
           t.text    :trim
         end
         
-        add_reference :vehicles, :customers, index: true
+        add_reference :vehicles, :customer, index: true
         add_reference :issues, :vehicle, index: true
       }
     rescue
