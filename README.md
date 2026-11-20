@@ -29,6 +29,17 @@ The goal of this project is to enable vehicle tracking for customer vehicles wit
 * **Appointments (redmine_qbo_calendar):** an appointment added from an estimate gets the customer's vehicle with the estimate's VIN. On an appointment without a vehicle, **Add Vehicle** creates one for the customer, sets it on the appointment and returns to it (for users who may edit appointments).
 * **For other plugins:** creating a vehicle calls the `:controller_vehicles_new_after_save` hook (context: `params`, `vehicle`), and the new vehicle form returns to `back_url` when given, so a plugin can link to `new_vehicle_path(customer_id:, back_url:, ...)` and act on the vehicle it gets back.
 
+## Screenshots
+
+All names and figures are made up.
+
+<table>
+<tr><td width="50%"><img src="screenshots/vehicles.png" alt="The Vehicles page: search, Scan VIN and last serviced mileage"><br><sub>The Vehicles page: search, Scan VIN and last serviced mileage</sub></td><td width="50%"><img src="screenshots/vehicle.png" alt="A vehicle with its estimates, invoices and issues"><br><sub>A vehicle with its estimates, invoices and issues</sub></td></tr>
+<tr><td width="50%"><img src="screenshots/issue.png" alt="An issue's vehicle and VIN"><br><sub>An issue's vehicle and VIN</sub></td><td width="50%"><img src="screenshots/issue_form.png" alt="Picking the vehicle on the issue form"><br><sub>Picking the vehicle on the issue form</sub></td></tr>
+<tr><td width="50%"><img src="screenshots/customer.png" alt="A customer's vehicles on their page"><br><sub>A customer's vehicles on their page</sub></td><td width="50%"><img src="screenshots/issues_from_estimate.png" alt="Creating issues from an estimate: the vehicle matching its VIN"><br><sub>Creating issues from an estimate: the vehicle matching its VIN</sub></td></tr>
+<tr><td width="50%"><img src="screenshots/vehicle_form.png" alt="The vehicle form with Scan VIN"><br><sub>The vehicle form with Scan VIN</sub></td><td width="50%"><img src="screenshots/settings.png" alt="Plugin settings"><br><sub>Plugin settings</sub></td></tr>
+</table>
+
 ## Installation
 
 1.  **Clone the plugin:**
