@@ -18,6 +18,8 @@ en:
   field_vehicles: "Vehicles"
   field_vin: "VIN"
   label_add_vehicle: "Add Vehicle"
+  text_ticket_qr_vehicle: "Scan to open the vehicle"
+  text_ticket_qr_add_vehicle: "Scan to add the vehicle"
   label_edit_customer_vehicle: "Edit Customer Vehicle"
   label_last_service: "Last Serviced:"
   label_make: "Make"

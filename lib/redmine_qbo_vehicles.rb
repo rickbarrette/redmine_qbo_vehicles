@@ -20,6 +20,7 @@ module RedmineQboVehicles
       Vehicles::Hooks::CalendarViewHookListener
     end
     Vehicles::Hooks::RemindersHookListener
+    Vehicles::Hooks::TicketsHookListener
     Vehicles::Hooks::IssueMacrosHookListener
 
     Vehicles::Hooks::CustomerShowHookListener
