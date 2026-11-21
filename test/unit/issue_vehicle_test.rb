@@ -70,6 +70,16 @@ class IssueVehicleTest < ActiveSupport::TestCase
     end
   end
 
+  def test_the_vehicle_macro_fills_the_description
+    @issue.description = 'Inspected {{vehicle}} for {{customer}}'
+    @issue.valid?
+    assert_equal 'Inspected {{vehicle}} for Jane Customer', @issue.description
+
+    @issue.vehicle = @vehicle
+    @issue.valid?
+    assert_equal 'Inspected 2018 Jeep Wrangler - JW123456 for Jane Customer', @issue.description
+  end
+
   def test_vehicle_is_a_safe_attribute
     @issue.safe_attributes = { 'vehicle_id' => @vehicle.id.to_s }
     assert_equal @vehicle.id, @issue.vehicle_id
