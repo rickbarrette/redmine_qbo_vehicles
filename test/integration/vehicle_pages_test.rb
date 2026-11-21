@@ -90,7 +90,7 @@ class VehiclePagesTest < Redmine::IntegrationTest
     get "/customers/#{@customer.id}"
     assert_response :success
     assert_select '.vehicle-list .vehicle-name a[href=?]', "/vehicles/#{@jeep.id}"
-    assert_select 'input.vehicle-checkbox[value=?]', @jeep.id.to_s
+    assert_select 'input.vehicle-checkbox[value=?][data-ticked-field=vehicle_id]', @jeep.id.to_s
     assert_select "form[action=?]", "/customers/#{@customer.id}/vehicles/new"
   end
 

@@ -46,31 +46,5 @@ module Vehicles
         vehicle_id ? { vehicle_id: vehicle_id } : {}
       end
     end
-
-    # The vehicle on redmine_qbo_calendar's appointment pages, form, lists, tooltips and calendar
-    class CalendarViewHookListener < Redmine::Hook::ViewListener
-      render_on :view_customer_appointments_form_details, partial: 'vehicles/appointment_field'
-      render_on :view_customer_appointments_show_details, partial: 'vehicles/appointment_attribute'
-      render_on :view_customer_appointments_list_header, partial: 'vehicles/appointment_list_header'
-      render_on :view_customer_appointments_list_row, partial: 'vehicles/appointment_list_row'
-      render_on :view_customer_appointments_tooltip, partial: 'vehicles/appointment_tooltip'
-      render_on :view_customer_appointments_calendar_event, partial: 'vehicles/appointment_calendar_event'
-    end
-
-    # {{vehicle}} in redmine_qbo_reminders' reminder emails, and the vehicle in the calendar file's title
-    class RemindersHookListener < Redmine::Hook::Listener
-      SAMPLE_VEHICLE = '2022 Jeep Gladiator'
-
-      def qbo_reminder_placeholders(_context = {})
-        ['vehicle']
-      end
-
-      # No appointment: the settings page's test email
-      def qbo_reminder_values(context = {})
-        appointment = context[:appointment]
-        name = appointment ? (appointment.respond_to?(:vehicle) ? appointment.vehicle&.to_s : nil) : SAMPLE_VEHICLE
-        name.present? ? { 'vehicle' => name, 'calendar_detail' => name } : {}
-      end
-    end
   end
 end

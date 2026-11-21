@@ -7,7 +7,7 @@
       <span class="vehicle-check">
         <% if show_checkbox %>
           <%# Ticking a vehicle adds it to the customer page's New issue and Add appointment links (redmine_qbo's customers/_new_issue_link_script) %>
-          <%= check_box_tag "vehicle_ids[]", vehicle.id, false, data: { new_issue_param: 'issue[vehicle_id]', appointment_param: 'vehicle_id' }, class: "vehicle-checkbox" %>
+          <%= check_box_tag "vehicle_ids[]", vehicle.id, false, data: { ticked_field: 'vehicle_id' }, class: "vehicle-checkbox" %>
         <% end %>
       </span>
       <div class="vehicle-text">
