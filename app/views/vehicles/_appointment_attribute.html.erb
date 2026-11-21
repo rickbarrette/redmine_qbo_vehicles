@@ -1,0 +1,7 @@
+<%# The vehicle on redmine_qbo_calendar's appointment page; call-outs have none %>
+<% unless appointment.call_out? %>
+<div class="attribute">
+  <div class="label"><%= l(:field_vehicle) %>:</div>
+  <div class="value"><%= link_to_if appointment.vehicle, appointment.vehicle&.name, appointment.vehicle %></div>
+</div>
+<% end %>

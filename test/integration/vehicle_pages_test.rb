@@ -161,6 +161,102 @@ class VehiclePagesTest < Redmine::IntegrationTest
     assert_nil appointment.reload.vehicle_id
   end
 
+  # ---- redmine_qbo_calendar's appointments (through its hooks) ----
+
+  def calendar_appointment(**attributes)
+    CustomerAppointment.create!({ subject: 'Lift kit install', date: Time.utc(2026, 11, 23, 9), duration: 1,
+                                  estimated_hours: 4, user_id: 2, project_id: 1, customer_id: @customer.id }.merge(attributes))
+  end
+
+  def test_appointments_have_the_vehicle
+    skip 'redmine_qbo_calendar is not installed' unless Redmine::Plugin.installed?(:redmine_qbo_calendar)
+
+    RedmineQboBilling::EstimateIssueBuilder.stubs(:labor_hours).returns(0)
+    appointment = calendar_appointment(vehicle_id: @jeep.id)
+    login_with(:view_customer_appointments, :add_customer_appointments, :edit_customer_appointments)
+
+    get "/customer_appointments/#{appointment.id}"
+    assert_select '.attribute a[href=?]', "/vehicles/#{@jeep.id}", text: @jeep.name
+    assert_select 'a[href*=?]', "issue%5Bvehicle_id%5D=#{@jeep.id}"
+
+    get "/customer_appointments/#{appointment.id}/edit"
+    assert_select 'select#appointment_vehicle_id[data-customer-option] option[selected][value=?]', @jeep.id.to_s
+    assert_select 'select#appointment_vehicle_id option[value=?]', @ford.id.to_s, count: 0
+
+    get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
+    assert_equal [@jeep.id], response.parsed_body['options']['appointment_vehicle_id'].map { |v| v['id'] }
+
+    get '/customer_appointments'
+    assert_select 'td.vehicle a[href=?]', "/vehicles/#{@jeep.id}"
+    get '/issues/calendar', params: { year: 2026, month: 11 }
+    assert_select '.appointment-detail', text: /#{Regexp.escape(@jeep.name)}/
+    assert_select '.tip a[href=?]', "/vehicles/#{@jeep.id}"
+  end
+
+  def test_saving_an_appointments_vehicle
+    skip 'redmine_qbo_calendar is not installed' unless Redmine::Plugin.installed?(:redmine_qbo_calendar)
+
+    RedmineQboBilling::EstimateIssueBuilder.stubs(:labor_hours).returns(0)
+    login_with(:view_customer_appointments, :add_customer_appointments)
+    # A link with a vehicle (e.g. ticked on the customer page) fills it in, if it's the customer's
+    get '/customer_appointments/new', params: { customer_id: @customer.id, vehicle_id: @jeep.id }
+    assert_select 'select#appointment_vehicle_id option[selected][value=?]', @jeep.id.to_s
+    get '/customer_appointments/new', params: { customer_id: @customer.id, vehicle_id: @ford.id }
+    assert_select 'select#appointment_vehicle_id option[selected]', 0
+
+    post '/customer_appointments', params: { customer_appointment: {
+      subject: 'Brakes', customer_id: @customer.id, vehicle_id: @jeep.id, user_id: 2, date: '2026-11-24T09:00', duration: 1, estimated_hours: 2
+    } }
+    assert_equal @jeep.id, CustomerAppointment.order(:id).last.vehicle_id
+
+    # A call-out has no vehicle
+    call_out = CustomerAppointment.create!(event_type: 'call_out', date: Time.utc(2026, 11, 24, 8), user_id: 3, vehicle_id: @jeep.id)
+    assert_nil call_out.vehicle_id
+  end
+
+  def test_create_issues_from_an_appointment_gets_its_vehicle
+    skip 'redmine_qbo_calendar is not installed' unless Redmine::Plugin.installed?(:redmine_qbo_calendar)
+
+    other = create_vehicle(customer: @customer, vin: 'J12345', year: 1978, make: 'Jeep', model: 'CJ-5')
+    setup_estimate(vin: nil)
+    appointment = calendar_appointment(estimate_id: 598, vehicle_id: other.id)
+    appointment.update_columns(estimate_id: 598)
+    login_with(:create_estimate_issues, :add_issues, :view_customer_appointments)
+    get '/qbo_estimates/598/issues_preview', params: { appointment_id: appointment.id }
+    assert_select 'select#estimate_issue_vehicle_id option[selected][value=?]', other.id.to_s
+  end
+
+  def test_create_issues_under_a_parent_gets_its_vehicle
+    setup_estimate(vin: nil)
+    login_with(:create_estimate_issues, :add_issues)
+    get '/qbo_estimates/598/issues_preview', params: { parent_issue_id: 1 }
+    assert_select 'select#estimate_issue_vehicle_id option[selected][value=?]', @jeep.id.to_s
+
+    hook = Vehicles::Hooks::BillingHookListener.instance
+    issue = Issue.new
+    hook.qbo_billing_build_issue(issue: issue, estimate: Estimate.find(598), defaults: { vehicle_id: '' }, parent: Issue.find(1))
+    assert_equal @jeep.id, issue.vehicle_id
+  end
+
+  def test_reminders_get_the_vehicle
+    hook = Vehicles::Hooks::RemindersHookListener.instance
+    assert_equal ['vehicle'], hook.qbo_reminder_placeholders
+    assert_equal({ 'vehicle' => '2022 Jeep Gladiator', 'calendar_detail' => '2022 Jeep Gladiator' }, hook.qbo_reminder_values(appointment: nil))
+    skip 'redmine_qbo_calendar is not installed' unless Redmine::Plugin.installed?(:redmine_qbo_calendar)
+
+    RedmineQboBilling::EstimateIssueBuilder.stubs(:labor_hours).returns(0)
+    appointment = calendar_appointment(vehicle_id: @jeep.id)
+    assert_equal({ 'vehicle' => @jeep.to_s, 'calendar_detail' => @jeep.to_s }, hook.qbo_reminder_values(appointment: appointment))
+    assert_equal({}, hook.qbo_reminder_values(appointment: calendar_appointment))
+    if defined?(RedmineQboReminders::Message)
+      settings = RedmineQboReminders::Settings.new('time_zone' => 'UTC', 'shop_name' => 'Example Garage', 'from_address' => 'shop@example.com')
+      message = RedmineQboReminders::Message.for(appointment, settings)
+      assert_equal @jeep.to_s, message.values['vehicle']
+      assert_includes message.ics, "SUMMARY:Appointment at Example Garage – #{@jeep}"
+      assert_includes RedmineQboReminders::Template.placeholders, 'vehicle'
+    end
+  end
+
   private
 
   def setup_estimate(vin:)

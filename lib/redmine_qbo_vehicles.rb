@@ -13,6 +13,13 @@ module RedmineQboVehicles
     Issue.prepend Vehicles::Patches::IssuePatch
     Customer.prepend Vehicles::Patches::CustomerPatch
     IssuesHelper.prepend Vehicles::Patches::IssuesHelperPatch
+    # redmine_qbo_calendar loads first (plugins load by name), so it's registered by now
+    if Redmine::Plugin.installed?(:redmine_qbo_calendar)
+      CustomerAppointment.prepend Vehicles::Patches::CustomerAppointmentPatch
+      Vehicles::Hooks::CalendarHookListener
+      Vehicles::Hooks::CalendarViewHookListener
+    end
+    Vehicles::Hooks::RemindersHookListener
 
     Vehicles::Hooks::CustomerShowHookListener
     Vehicles::Hooks::IssuesFormHookListener

@@ -1,0 +1,8 @@
+<%# The Vehicle list on redmine_qbo_calendar's appointment form; refilled when the customer changes
+    (data-customer-option, from :qbo_calendar_customer_options) %>
+<p>
+  <%= form.label :vehicle_id, l(:field_vehicle) %>
+  <%= form.collection_select :vehicle_id, appointment.customer.respond_to?(:vehicles) ? appointment.customer.vehicles : [],
+                             :id, :name, { include_blank: true },
+                             { label: false, id: 'appointment_vehicle_id', data: { customer_option: true } } %>
+</p>

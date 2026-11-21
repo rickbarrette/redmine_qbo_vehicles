@@ -66,9 +66,19 @@ module Vehicles
         vehicle ? { vehicle_id: vehicle.id } : {}
       end
 
-      # Issues created from an estimate get a vehicle: the one picked on the Create issues page (or passed in,
-      # e.g. redmine_qbo_calendar's appointment vehicle; blank means none), else the customer's vehicle whose
-      # VIN is on the estimate
+      # Create issues from an estimate starts from the parent issue's vehicle, else (opened from a
+      # redmine_qbo_calendar appointment) the appointment's
+      def qbo_billing_issue_defaults(context = {})
+        parent = context[:parent_issue]
+        return { vehicle_id: parent.vehicle_id.to_s } if parent.respond_to?(:vehicle_id) && parent.vehicle_id.present?
+
+        appointment = estimate_appointment(context)
+        appointment&.vehicle_id ? { vehicle_id: appointment.vehicle_id.to_s } : {}
+      end
+
+      # Issues created from an estimate get a vehicle: the one picked on the Create issues page (or passed in
+      # defaults; blank means none), else the customer's vehicle whose VIN is on the estimate. A subtask left
+      # without one gets its parent's.
       def qbo_billing_build_issue(context = {})
         issue = context[:issue]
         return unless issue.respond_to?(:vehicle_id=)
@@ -76,6 +86,9 @@ module Vehicles
         defaults = (context[:defaults] || {}).to_h.symbolize_keys
         vehicle_id = defaults.key?(:vehicle_id) ? defaults[:vehicle_id].presence : Vehicles::EstimateVehicle.match(context[:estimate])&.id
         issue.vehicle_id = vehicle_id if vehicle_id
+
+        parent = context[:parent]
+        issue.vehicle_id = parent.vehicle_id if issue.vehicle_id.blank? && parent.respond_to?(:vehicle_id)
       end
 
       # One vehicle per invoice (OSOR SOP): an invoice whose work orders are for more than one vehicle
@@ -94,6 +107,18 @@ module Vehicles
       end
 
       private
+
+      # The redmine_qbo_calendar appointment Create issues was opened from (?appointment_id=), when it's for this
+      # estimate and the user may see appointments
+      def estimate_appointment(context)
+        appointment_id = context.dig(:params, :appointment_id)
+        return nil if appointment_id.blank? || !Redmine::Plugin.installed?(:redmine_qbo_calendar)
+        return nil unless User.current.allowed_to?(:view_customer_appointments, nil, global: true)
+
+        appointment = CustomerAppointment.find_by(id: appointment_id)
+        estimate = context[:estimate]
+        appointment if appointment.respond_to?(:vehicle_id) && estimate && appointment.estimate_id.to_s == estimate.id.to_s
+      end
 
       # { issue_id => mileage } from the issue custom field named "Mileage"; empty without that field
       def mileage_by_issue(issues)
