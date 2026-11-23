@@ -267,4 +267,24 @@ class VehiclePagesTest < Redmine::IntegrationTest
     RedmineQboBilling::EstimateWriter.stubs(:custom_field_value).returns(vin)
     @fake.add(estimate_doc)
   end
+
+  def test_vehicle_page_has_print_intake_form_with_redmine_qbo_tickets
+    skip 'redmine_qbo_tickets is not installed' unless Redmine::Plugin.installed?(:redmine_qbo_tickets)
+
+    login_with(:view_customers)
+    get "/vehicles/#{@jeep.id}"
+    assert_select 'a.qbo-ticket-intake-link', 0
+
+    printer = LabelPrinter.new(name: 'Front desk', kind: 'receipt')
+    printer.generate_token
+    printer.save!
+    login_with(:print_key_tickets)
+    get "/vehicles/#{@jeep.id}"
+    assert_response :success
+    assert_select 'a.qbo-ticket-intake-link[href=?]',
+                  "/intake_tickets/new?customer_id=#{@customer.id}&vehicle_id=#{@jeep.id}"
+  ensure
+    LabelPrinter.where(name: 'Front desk').delete_all if defined?(LabelPrinter)
+    Role.find(1).remove_permission!(:print_key_tickets)
+  end
 end

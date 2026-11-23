@@ -4,6 +4,11 @@
 
 <%# Under the title, like the customer page (redmine_qbo's qbo-under-title) %>
 <div class="contextual qbo-under-title">
+  <%# redmine_qbo_tickets' Print intake form, for the vehicle's customer with this vehicle %>
+  <% if defined?(RedmineQboTickets) && RedmineQboTickets.respond_to?(:intake_available?) &&
+        @vehicle.customer && RedmineQboTickets.intake_available? %>
+    <%= render partial: 'ticket_hooks/intake_link', locals: { customer: @vehicle.customer, params: { vehicle_id: @vehicle.id } } %>
+  <% end %>
   <% if User.current.allowed_to?(:edit_vehicles, nil, global: true) %>
     <%= link_to sprite_icon('edit', l(:button_edit)), edit_vehicle_path(@vehicle),
                 class: 'icon icon-edit', accesskey: accesskey(:edit) %>
